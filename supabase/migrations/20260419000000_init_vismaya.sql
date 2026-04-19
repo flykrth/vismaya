@@ -83,7 +83,6 @@ FOR EACH ROW EXECUTE FUNCTION calculate_age_category();
 -- Trigger 2: Master Validation for Registrations (Age, Limit, Time Conflict, Capacity)
 CREATE OR REPLACE FUNCTION validate_and_process_registration() RETURNS TRIGGER AS $$
 DECLARE
-    v_camper_age age_category_type;
     active_count INT;
     conflict_exists BOOLEAN;
     sched RECORD;
@@ -93,16 +92,15 @@ BEGIN
         RETURN NEW;
     END IF;
 
-    -- Fetch Camper Age and Schedule info
-    SELECT age_category INTO v_camper_age FROM campers WHERE id = NEW.camper_id;
+    -- Fetch Schedule info
     SELECT w.allowed_age_categories, s.start_time, s.end_time, s.current_enrollment, s.max_capacity 
     INTO sched 
     FROM schedules s JOIN workshops w ON s.workshop_id = w.id 
     WHERE s.id = NEW.schedule_id;
 
     -- A. Age Validation
-    IF NOT (ARRAY[v_camper_age] && sched.allowed_age_categories) THEN
-        RAISE EXCEPTION 'Age Validation Failed: Camper age category % is not allowed for this workshop', v_camper_age;
+    IF array_position(sched.allowed_age_categories, (SELECT age_category FROM campers WHERE id = NEW.camper_id)) IS NULL THEN
+        RAISE EXCEPTION 'Age Validation Failed: Camper age category is not allowed for this workshop';
     END IF;
 
     -- B. Max 6 Workshops Validation
