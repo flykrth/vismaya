@@ -18,10 +18,10 @@ export function Navigation() {
   }, []);
 
   const navLinks = [
-    { name: 'Adventures', href: '#', icon: Compass },
-    { name: 'Camp Life', href: '#', icon: Tent },
-    { name: 'Spiritual Path', href: '#', icon: Sun },
-    { name: 'Gallery', href: '#', icon: ImageIcon },
+    { name: 'Adventures', href: '/catalog', icon: Compass },
+    { name: 'Camp Life', href: '/#camp-life', icon: Tent },
+    { name: 'Spiritual Path', href: '/#spiritual', icon: Sun },
+    { name: 'Gallery', href: '/#gallery', icon: ImageIcon },
   ];
 
   return (
@@ -70,16 +70,18 @@ export function Navigation() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container text-surface-container-lowest px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 rough-edge border border-primary/40 group"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Register Now
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </motion.button>
+            <Link href="/catalog">
+              <motion.button 
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container text-surface-container-lowest px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 rough-edge border border-primary/40 group inline-block"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Register Now
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </motion.button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
