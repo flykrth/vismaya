@@ -85,30 +85,28 @@ CREATE OR REPLACE FUNCTION validate_and_process_registration() RETURNS TRIGGER A
 DECLARE
     active_count INT;
     conflict_exists BOOLEAN;
-    v_allowed_ages age_category_type[];
-    v_start_time TIMESTAMPTZ;
-    v_end_time TIMESTAMPTZ;
-    v_current_enrollment INT;
-    v_max_capacity INT;
+    v_status registration_status_type;
 BEGIN
     -- Only validate if status is NOT cancelled
     IF NEW.status = 'cancelled' THEN
         RETURN NEW;
     END IF;
 
-    -- Fetch Schedule info
-    SELECT w.allowed_age_categories, s.start_time, s.end_time, s.current_enrollment, s.max_capacity 
-    INTO v_allowed_ages, v_start_time, v_end_time, v_current_enrollment, v_max_capacity 
-    FROM schedules s JOIN workshops w ON s.workshop_id = w.id 
-    WHERE s.id = NEW.schedule_id;
-
     -- A. Age Validation
-    IF array_position(v_allowed_ages, (SELECT age_category FROM campers WHERE id = NEW.camper_id)) IS NULL THEN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM campers c
+        JOIN schedules s ON s.id = NEW.schedule_id
+        JOIN workshops w ON w.id = s.workshop_id
+        WHERE c.id = NEW.camper_id 
+        AND c.age_category = ANY(w.allowed_age_categories)
+    ) THEN
         RAISE EXCEPTION 'Age Validation Failed: Camper age category is not allowed for this workshop';
     END IF;
 
     -- B. Max 6 Workshops Validation
-    SELECT count(*) INTO active_count FROM registrations 
+    SELECT count(*) INTO active_count 
+    FROM registrations 
     WHERE camper_id = NEW.camper_id AND status != 'cancelled' AND id IS DISTINCT FROM NEW.id;
     
     IF active_count >= 6 THEN
@@ -117,12 +115,15 @@ BEGIN
 
     -- C. No Time Conflicts Validation
     SELECT EXISTS (
-        SELECT 1 FROM registrations r
-        JOIN schedules s ON r.schedule_id = s.id
+        SELECT 1 
+        FROM registrations r
+        JOIN schedules existing_s ON r.schedule_id = existing_s.id
+        JOIN schedules new_s ON new_s.id = NEW.schedule_id
         WHERE r.camper_id = NEW.camper_id
         AND r.status != 'cancelled'
         AND r.id IS DISTINCT FROM NEW.id
-        AND v_start_time < s.end_time AND v_end_time > s.start_time
+        AND new_s.start_time < existing_s.end_time 
+        AND new_s.end_time > existing_s.start_time
     ) INTO conflict_exists;
 
     IF conflict_exists THEN
@@ -130,9 +131,14 @@ BEGIN
     END IF;
 
     -- D. Capacity Limit (Waitlist if full)
-    -- We only set waitlisted if transitioning to 'registered' or inserting 'registered'
-    IF NEW.status = 'registered' AND v_current_enrollment >= v_max_capacity THEN
-        NEW.status := 'waitlisted'::registration_status_type;
+    IF NEW.status = 'registered' THEN
+        SELECT CASE 
+            WHEN current_enrollment >= max_capacity THEN 'waitlisted'::registration_status_type
+            ELSE 'registered'::registration_status_type
+        END INTO v_status
+        FROM schedules WHERE id = NEW.schedule_id;
+        
+        NEW.status := v_status;
     END IF;
 
     RETURN NEW;
