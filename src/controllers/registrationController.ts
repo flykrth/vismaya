@@ -33,7 +33,7 @@ export async function submitRegistration(camperId: string, scheduleId: string) {
       return { success: false, message: error.message };
     }
 
-    return { success: true, data: data[0] };
+    return { success: true, message: 'Successfully registered!', data: data[0] };
   } catch (err: any) {
     return { success: false, message: err.message || 'An unexpected error occurred.' };
   }

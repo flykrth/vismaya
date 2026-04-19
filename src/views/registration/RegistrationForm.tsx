@@ -20,7 +20,7 @@ export function RegistrationForm() {
   const [selectedCamper, setSelectedCamper] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ success: boolean; message: string; data?: any } | null>(null);
 
   useEffect(() => {
     async function loadCampers() {
