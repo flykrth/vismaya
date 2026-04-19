@@ -82,10 +82,6 @@ FOR EACH ROW EXECUTE FUNCTION calculate_age_category();
 
 -- Trigger 2: Master Validation for Registrations (Age, Limit, Time Conflict, Capacity)
 CREATE OR REPLACE FUNCTION validate_and_process_registration() RETURNS TRIGGER AS $$
-DECLARE
-    active_count INT;
-    conflict_exists BOOLEAN;
-    v_status registration_status_type;
 BEGIN
     -- Only validate if status is NOT cancelled
     IF NEW.status = 'cancelled' THEN
@@ -105,16 +101,12 @@ BEGIN
     END IF;
 
     -- B. Max 6 Workshops Validation
-    SELECT count(*) INTO active_count 
-    FROM registrations 
-    WHERE camper_id = NEW.camper_id AND status != 'cancelled' AND id IS DISTINCT FROM NEW.id;
-    
-    IF active_count >= 6 THEN
+    IF (SELECT count(*) FROM registrations WHERE camper_id = NEW.camper_id AND status != 'cancelled' AND id IS DISTINCT FROM NEW.id) >= 6 THEN
         RAISE EXCEPTION 'Maximum workshop limit reached.';
     END IF;
 
     -- C. No Time Conflicts Validation
-    SELECT EXISTS (
+    IF EXISTS (
         SELECT 1 
         FROM registrations r
         JOIN schedules existing_s ON r.schedule_id = existing_s.id
@@ -124,21 +116,19 @@ BEGIN
         AND r.id IS DISTINCT FROM NEW.id
         AND new_s.start_time < existing_s.end_time 
         AND new_s.end_time > existing_s.start_time
-    ) INTO conflict_exists;
-
-    IF conflict_exists THEN
+    ) THEN
         RAISE EXCEPTION 'Time slot conflict detected.';
     END IF;
 
     -- D. Capacity Limit (Waitlist if full)
     IF NEW.status = 'registered' THEN
-        SELECT CASE 
-            WHEN current_enrollment >= max_capacity THEN 'waitlisted'::registration_status_type
-            ELSE 'registered'::registration_status_type
-        END INTO v_status
-        FROM schedules WHERE id = NEW.schedule_id;
-        
-        NEW.status := v_status;
+        NEW.status := (
+            SELECT CASE 
+                WHEN current_enrollment >= max_capacity THEN 'waitlisted'::registration_status_type
+                ELSE 'registered'::registration_status_type
+            END
+            FROM schedules WHERE id = NEW.schedule_id
+        );
     END IF;
 
     RETURN NEW;
