@@ -1,17 +1,29 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "tailwindcss";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme inline {
+  --color-primary: #914700;
+  --color-secondary: #8137b1;
+  --color-tertiary: #006573;
+  --color-surface: #fff4ee;
+  --color-on-surface: #472701;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #ffeee1;
+  --color-primary-container: #f97f06;
+  --color-secondary-container: #ebc4ff;
+  --color-tertiary-container: #50e1f9;
+  
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-handdrawn: "Caveat", cursive;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
 }
+
+.rough-edge {
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
