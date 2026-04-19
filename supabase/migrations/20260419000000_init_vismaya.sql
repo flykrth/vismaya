@@ -85,7 +85,11 @@ CREATE OR REPLACE FUNCTION validate_and_process_registration() RETURNS TRIGGER A
 DECLARE
     active_count INT;
     conflict_exists BOOLEAN;
-    sched RECORD;
+    v_allowed_ages age_category_type[];
+    v_start_time TIMESTAMPTZ;
+    v_end_time TIMESTAMPTZ;
+    v_current_enrollment INT;
+    v_max_capacity INT;
 BEGIN
     -- Only validate if status is NOT cancelled
     IF NEW.status = 'cancelled' THEN
@@ -94,12 +98,12 @@ BEGIN
 
     -- Fetch Schedule info
     SELECT w.allowed_age_categories, s.start_time, s.end_time, s.current_enrollment, s.max_capacity 
-    INTO sched 
+    INTO v_allowed_ages, v_start_time, v_end_time, v_current_enrollment, v_max_capacity 
     FROM schedules s JOIN workshops w ON s.workshop_id = w.id 
     WHERE s.id = NEW.schedule_id;
 
     -- A. Age Validation
-    IF array_position(sched.allowed_age_categories, (SELECT age_category FROM campers WHERE id = NEW.camper_id)) IS NULL THEN
+    IF array_position(v_allowed_ages, (SELECT age_category FROM campers WHERE id = NEW.camper_id)) IS NULL THEN
         RAISE EXCEPTION 'Age Validation Failed: Camper age category is not allowed for this workshop';
     END IF;
 
@@ -118,7 +122,7 @@ BEGIN
         WHERE r.camper_id = NEW.camper_id
         AND r.status != 'cancelled'
         AND r.id IS DISTINCT FROM NEW.id
-        AND sched.start_time < s.end_time AND sched.end_time > s.start_time
+        AND v_start_time < s.end_time AND v_end_time > s.start_time
     ) INTO conflict_exists;
 
     IF conflict_exists THEN
@@ -127,7 +131,7 @@ BEGIN
 
     -- D. Capacity Limit (Waitlist if full)
     -- We only set waitlisted if transitioning to 'registered' or inserting 'registered'
-    IF NEW.status = 'registered' AND sched.current_enrollment >= sched.max_capacity THEN
+    IF NEW.status = 'registered' AND v_current_enrollment >= v_max_capacity THEN
         NEW.status := 'waitlisted'::registration_status_type;
     END IF;
 
