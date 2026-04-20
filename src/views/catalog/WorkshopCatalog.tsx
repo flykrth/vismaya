@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Users } from 'lucide-react';
 import { Workshop } from '@/models/supabaseClient';
+import { supabase } from '@/models/supabaseClient';
 import { fetchCatalog } from '@/controllers/catalogController';
 import Link from 'next/link';
 import { CatalogSkeleton } from './CatalogSkeleton';
@@ -14,14 +15,28 @@ export function WorkshopCatalog() {
   const [filter, setFilter] = useState<'all' | 'sub-junior' | 'junior' | 'senior'>('all');
   const ageFilters: Array<'all' | 'sub-junior' | 'junior' | 'senior'> = ['all', 'sub-junior', 'junior', 'senior'];
 
-  useEffect(() => {
-    async function loadCatalog() {
-      const data = await fetchCatalog();
-      setWorkshops(data);
-      setLoading(false);
-    }
-    loadCatalog();
+  const loadCatalog = useCallback(async () => {
+    const data = await fetchCatalog();
+    setWorkshops(data);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadCatalog();
+    });
+
+    const channel = supabase
+      .channel('catalog-live-schedules')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, () => {
+        loadCatalog();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadCatalog]);
 
   const filteredWorkshops = workshops.filter(w => 
     filter === 'all' || w.allowed_age_categories.includes(filter)

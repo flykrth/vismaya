@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Workshop, Schedule } from '@/models/supabaseClient';
+import { Workshop, Schedule, supabase } from '@/models/supabaseClient';
 import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/catalogController';
 import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, Camera } from 'lucide-react';
 import Link from 'next/link';
@@ -17,32 +17,50 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
   const hasValidWorkshopId = Boolean(workshopId && workshopId !== 'undefined');
   const [loading, setLoading] = useState(true);
 
+  const loadData = useCallback(async () => {
+    if (!hasValidWorkshopId) {
+      return;
+    }
+
+    try {
+      const [workshopData, scheduleData] = await Promise.all([
+        fetchWorkshopById(workshopId),
+        fetchSchedulesForWorkshop(workshopId)
+      ]);
+      setWorkshop(workshopData);
+      setSchedules(scheduleData);
+
+      if (!workshopData) {
+        toast.error('Workshop not found');
+      }
+    } catch (error) {
+      toast.error('Failed to load workshop details');
+      console.error('Error loading workshop:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [hasValidWorkshopId, workshopId]);
+
   useEffect(() => {
     if (!hasValidWorkshopId) {
       return;
     }
-    
-    async function loadData() {
-      try {
-        const [workshopData, scheduleData] = await Promise.all([
-          fetchWorkshopById(workshopId),
-          fetchSchedulesForWorkshop(workshopId)
-        ]);
-        setWorkshop(workshopData);
-        setSchedules(scheduleData);
-        
-        if (!workshopData) {
-          toast.error('Workshop not found');
-        }
-      } catch (error) {
-        toast.error('Failed to load workshop details');
-        console.error('Error loading workshop:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [workshopId, hasValidWorkshopId]);
+
+    queueMicrotask(() => {
+      void loadData();
+    });
+
+    const channel = supabase
+      .channel(`workshop-details-live-${workshopId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules', filter: `workshop_id=eq.${workshopId}` }, () => {
+        loadData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [workshopId, hasValidWorkshopId, loadData]);
 
   if (hasValidWorkshopId && loading) {
     return <WorkshopDetailsSkeleton />;

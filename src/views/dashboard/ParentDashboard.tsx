@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camper, RegistrationWithDetails } from '@/models/supabaseClient';
+import { Camper, RegistrationWithDetails, supabase } from '@/models/supabaseClient';
 import { fetchMySecureCampers, addCamper, fetchMyRegistrations, cancelRegistration } from '@/controllers/dashboardController';
 import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent, BookOpen, Clock, MapPin, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -17,23 +17,40 @@ export function ParentDashboard() {
   const [cancellingRegistrationId, setCancellingRegistrationId] = useState<string | null>(null);
   const [addResult, setAddResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      const [{ campers: camperData }, { registrations: registrationData, error: registrationError }] = await Promise.all([
-        fetchMySecureCampers(),
-        fetchMyRegistrations(),
-      ]);
+  const loadDashboardData = useCallback(async () => {
+    const [{ campers: camperData }, { registrations: registrationData, error: registrationError }] = await Promise.all([
+      fetchMySecureCampers(),
+      fetchMyRegistrations(),
+    ]);
 
-      if (camperData) setCampers(camperData);
-      if (registrationData) setRegistrations(registrationData);
-      if (registrationError) {
-        toast.error(registrationError);
-      }
-
-      setLoading(false);
+    if (camperData) setCampers(camperData);
+    if (registrationData) setRegistrations(registrationData);
+    if (registrationError) {
+      toast.error(registrationError);
     }
-    loadDashboardData();
+
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadDashboardData();
+    });
+
+    const channel = supabase
+      .channel('dashboard-live-data')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
+        loadDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, () => {
+        loadDashboardData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadDashboardData]);
 
   const handleAddCamper = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,13 +64,7 @@ export function ParentDashboard() {
     setAdding(false);
 
     if (result.success) {
-      const [{ campers: data }, { registrations: registrationData }] = await Promise.all([
-        fetchMySecureCampers(),
-        fetchMyRegistrations(),
-      ]);
-
-      if (data) setCampers(data);
-      if (registrationData) setRegistrations(registrationData);
+      await loadDashboardData();
 
       // Close modal after 2 seconds
       setTimeout(() => {
@@ -74,8 +85,7 @@ export function ParentDashboard() {
       return;
     }
 
-    const { registrations: registrationData } = await fetchMyRegistrations();
-    setRegistrations(registrationData);
+    await loadDashboardData();
     toast.success(result.message || 'Registration cancelled successfully.');
     setCancellingRegistrationId(null);
   };
