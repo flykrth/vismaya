@@ -12,7 +12,7 @@ export function HeroSection() {
   const y2 = useTransform(scrollY, [0, 500], [0, -50]);
 
   return (
-    <section className="relative w-full max-w-7xl mx-auto px-6 md:px-12 pb-24 pt-12 min-h-[90vh] flex items-center">
+    <section className="relative w-full max-w-7xl mx-auto px-6 md:px-12 pb-24 pt-32 min-h-[90vh] flex items-center">
       {/* Decorative blobs */}
       <motion.div 
         animate={{ 
