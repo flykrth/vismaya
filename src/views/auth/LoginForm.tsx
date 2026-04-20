@@ -55,10 +55,10 @@ export function LoginForm() {
             </motion.div>
           </Link>
           <h1 className="font-headline text-4xl font-extrabold text-on-surface tracking-tight mb-2">
-            {isLogin ? 'Welcome Back' : 'Begin the Journey'}
+            {isLogin ? 'Welcome Back' : 'Begin the journey'}
           </h1>
           <p className="font-body text-on-surface-variant text-lg">
-            Enter the horizon of your next adventure.
+            Enter the details of PARENT/GUARDIAN to {isLogin ? 'sign in' : 'create your account'}.
           </p>
         </div>
 
@@ -88,12 +88,12 @@ export function LoginForm() {
                   className="space-y-5 overflow-hidden"
                 >
                   <div>
-                    <label className="block font-body font-bold text-on-surface text-sm mb-2">Full Name</label>
+                    <label className="block font-body font-bold text-on-surface text-sm mb-2">Full name</label>
                     <input 
                       required={!isLogin}
                       name="full_name"
                       type="text" 
-                      placeholder="Jane Doe"
+                      placeholder="Vijay Krishna"
                       className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
                     />
                   </div>
@@ -104,17 +104,17 @@ export function LoginForm() {
                         required={!isLogin}
                         name="phone_number"
                         type="tel" 
-                        placeholder="555-0100"
+                        placeholder="9192939495"
                         className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
                       />
                     </div>
                     <div>
-                      <label className="block font-body font-bold text-on-surface text-sm mb-2">Emergency</label>
+                      <label className="block font-body font-bold text-on-surface text-sm mb-2">Emergency contact</label>
                       <input 
                         required={!isLogin}
                         name="emergency_contact"
                         type="tel" 
-                        placeholder="555-0199"
+                        placeholder="9697989990"
                         className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
                       />
                     </div>
@@ -124,12 +124,12 @@ export function LoginForm() {
             </AnimatePresence>
 
             <div>
-              <label className="block font-body font-bold text-on-surface text-sm mb-2">Email Address</label>
+              <label className="block font-body font-bold text-on-surface text-sm mb-2">Email address</label>
               <input 
                 required
                 name="email"
                 type="email" 
-                placeholder="jane@example.com"
+                placeholder="parent@gmail.com"
                 className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
               />
             </div>
@@ -171,13 +171,13 @@ export function LoginForm() {
         </div>
 
         <p className="text-center text-sm font-body text-on-surface-variant/60 mt-8">
-          © 2026 Vismaya Camp. Guided by Light.<br/>
+          © 2026 Amrita LEAP<br/>
           <span className="space-x-3 mt-2 inline-block">
-            <a href="#" className="hover:text-primary">Privacy</a>
+            <a href="tel:+919778402692" className="hover:text-primary">Contact Us</a>
             <span>•</span>
-            <a href="#" className="hover:text-primary">Terms</a>
+            <a href="mailto:info@amritaleap.org" className="hover:text-primary">Email</a>
             <span>•</span>
-            <a href="#" className="hover:text-primary">Support</a>
+            <a href="https://www.instagram.com/amrita_leap" className="hover:text-primary">Instagram</a>
           </span>
         </p>
       </motion.div>

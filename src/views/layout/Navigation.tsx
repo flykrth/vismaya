@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sun } from 'lucide-react';
+import { FlagTriangleLeft, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 
 export function Navigation({ initialSession }: { initialSession: any }) {
@@ -40,7 +40,7 @@ export function Navigation({ initialSession }: { initialSession: any }) {
               transition={{ duration: 0.5 }}
               className="relative z-10 text-primary"
             >
-              <Sun size={32} strokeWidth={2.5} />
+              <FlagTriangleLeft size={32} strokeWidth={2.5} />
             </motion.div>
             <span className="font-headline text-2xl font-black text-on-surface tracking-tighter uppercase relative z-10">
               Vismaya <span className="text-primary">Camp</span>
