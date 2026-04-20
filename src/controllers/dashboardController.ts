@@ -189,9 +189,8 @@ export async function cancelRegistration(registrationId: string) {
 
   const { error } = await supabase
     .from('registrations')
-    .update({ status: 'cancelled' })
-    .eq('id', registrationId)
-    .neq('status', 'cancelled');
+    .delete()
+    .eq('id', registrationId);
 
   if (error) {
     return { success: false, message: error.message };
