@@ -38,3 +38,37 @@ export async function fetchCatalog(): Promise<Workshop[]> {
 
   return catalog;
 }
+
+export async function fetchWorkshopById(id: string): Promise<Workshop | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('workshops')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching workshop:', error);
+    return null;
+  }
+  
+  return data;
+}
+
+export async function fetchSchedulesForWorkshop(workshopId: string): Promise<Schedule[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('schedules')
+    .select('*')
+    .eq('workshop_id', workshopId)
+    .order('start_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching schedules:', error);
+    return [];
+  }
+  
+  return data || [];
+}
