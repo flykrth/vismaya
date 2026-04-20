@@ -108,7 +108,7 @@ export function ParentDashboard() {
           onClick={() => setShowAddModal(true)}
           className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 rough-edge border border-primary/40"
         >
-          <Plus size={20} /> Add Camper
+          <Plus size={20} /> Add camper
         </motion.button>
       </motion.div>
 
@@ -125,15 +125,15 @@ export function ParentDashboard() {
           <div className="w-24 h-24 bg-primary-container/30 text-primary rounded-full flex items-center justify-center mb-6">
             <Tent size={48} strokeWidth={1.5} />
           </div>
-          <h3 className="font-headline text-3xl font-bold text-on-surface mb-4">No Campers Yet</h3>
+          <h3 className="font-headline text-3xl font-bold text-on-surface mb-4">No campers yet</h3>
           <p className="font-body text-lg text-on-surface-variant max-w-md mb-8">
-            Add your children to your profile so you can start registering them for exciting Vismaya Camp workshops!
+            Add your children to your profile so you can start registering them for exciting workshops!
           </p>
           <button
             onClick={() => setShowAddModal(true)}
             className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-full font-bold shadow-md hover:bg-secondary-container/80 transition-colors"
           >
-            Add Your First Camper
+            Add your first camper
           </button>
         </motion.div>
       ) : (
@@ -232,10 +232,6 @@ export function ParentDashboard() {
                           {registration.schedule.venue}
                         </div>
                       </div>
-
-                      <span className={`inline-flex mt-2 px-4 py-1.5 rounded-xl text-xs font-bold border ${remainingSpots === 0 ? 'text-error border-error/30 bg-error-container/30' : 'text-green-700 border-green-200 bg-green-50'}`}>
-                        Remaining spots {remainingSpots}/{registration.schedule.max_capacity}
-                      </span>
                     </div>
 
                     <motion.button
@@ -243,7 +239,7 @@ export function ParentDashboard() {
                       whileTap={{ scale: 0.97 }}
                       onClick={() => handleCancelRegistration(registration.id)}
                       disabled={cancellingRegistrationId === registration.id}
-                      className="h-fit w-full md:w-auto bg-error text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="h-fit w-full md:w-auto bg-red-500 text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {cancellingRegistrationId === registration.id ? (
                         <>
