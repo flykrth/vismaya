@@ -24,6 +24,7 @@ export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error
 export async function addCamper(formData: FormData) {
   const fullName = formData.get('full_name') as string;
   const dob = formData.get('dob') as string; // Expected format: YYYY-MM-DD
+  const gender = (formData.get('gender') as 'male' | 'female' | 'other' | 'prefer_not_to_say') || 'prefer_not_to_say';
 
   const supabase = await createClient();
 
@@ -41,6 +42,7 @@ export async function addCamper(formData: FormData) {
         parent_id: user.id,
         full_name: fullName,
         date_of_birth: dob,
+        gender,
       }
     ]);
 

@@ -164,6 +164,7 @@ export function WorkshopCatalog() {
               >
                 <p className="font-headline text-2xl font-bold text-on-surface">{camper.full_name}</p>
                 <p className="font-body text-on-surface-variant mt-1">Age Category: {camper.age_category}</p>
+                <p className="font-body text-on-surface-variant mt-1">Gender: {camper.gender.replaceAll('_', ' ')}</p>
               </button>
             ))}
           </div>
@@ -172,7 +173,7 @@ export function WorkshopCatalog() {
         <>
           <div className="mb-8">
             <span className="inline-flex px-4 py-2 bg-primary/10 text-primary rounded-xl font-bold border border-primary/20">
-              Showing workshops for {selectedCamper?.full_name} ({selectedCamper?.age_category})
+              Showing workshops for {selectedCamper?.full_name} ({selectedCamper?.age_category}, {selectedCamper?.gender.replaceAll('_', ' ')})
             </span>
           </div>
 

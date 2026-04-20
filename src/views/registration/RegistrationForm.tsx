@@ -126,7 +126,7 @@ export function RegistrationForm() {
             <div className="space-y-2">
               <label className="font-headline font-bold text-on-surface text-lg">Selected Camper</label>
               <div className="bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface font-semibold">
-                {lockedCamper ? `${lockedCamper.full_name} (${lockedCamper.age_category})` : 'Selected Camper'}
+                {lockedCamper ? `${lockedCamper.full_name} (${lockedCamper.age_category}, ${lockedCamper.gender.replaceAll('_', ' ')})` : 'Selected Camper'}
               </div>
             </div>
 

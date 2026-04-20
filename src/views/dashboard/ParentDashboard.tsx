@@ -160,6 +160,9 @@ export function ParentDashboard() {
                     <Calendar size={18} className="text-secondary" />
                     <span>DOB: {new Date(camper.date_of_birth).toLocaleDateString()}</span>
                   </div>
+                  <div className="text-on-surface-variant font-body text-sm">
+                    Gender: <span className="font-bold text-on-surface">{camper.gender.replaceAll('_', ' ')}</span>
+                  </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-sm font-bold bg-secondary-container/30 text-secondary px-4 py-2 rounded-xl border border-secondary/20">
                       Category: {camper.age_category}
@@ -301,6 +304,21 @@ export function ParentDashboard() {
                     className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary transition-all font-semibold"
                   />
                   <p className="text-xs text-on-surface-variant mt-2">Age category is calculated automatically.</p>
+                </div>
+
+                <div>
+                  <label className="block font-body font-bold text-on-surface text-sm mb-2">Gender</label>
+                  <select
+                    required
+                    name="gender"
+                    defaultValue="prefer_not_to_say"
+                    className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary transition-all font-semibold"
+                  >
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
                 </div>
 
                 <AnimatePresence mode="wait">

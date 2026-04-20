@@ -10,6 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type AgeCategory = 'sub-junior' | 'junior' | 'senior';
+export type CamperGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 export type RegistrationStatus = 'registered' | 'waitlisted' | 'cancelled';
 
 export interface Workshop {
@@ -37,6 +38,7 @@ export interface Camper {
   parent_id: string;
   full_name: string;
   date_of_birth: string;
+  gender: CamperGender;
   age_category: AgeCategory;
   created_at: string;
 }
