@@ -8,11 +8,13 @@ import Link from 'next/link';
 export function Navigation({ initialSession }: { initialSession: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [session, setSession] = useState<any>(initialSession);
+  const [session, setSession] = useState<any>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // If initialSession changes from server, update it
+    // Set initial session after hydration to prevent mismatch
     setSession(initialSession);
+    setIsHydrated(true);
   }, [initialSession]);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export function Navigation({ initialSession }: { initialSession: any }) {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            {session ? (
+            {isHydrated && session ? (
               <div className="flex items-center gap-4">
                 <Link href="/dashboard" className="font-bold text-sm text-on-surface hover:text-primary transition-colors">
                   Dashboard
@@ -149,7 +151,7 @@ export function Navigation({ initialSession }: { initialSession: any }) {
                 </motion.a>
               ))}
             </nav>
-            {session ? (
+            {isHydrated && session ? (
               <div className="mt-auto mb-12 space-y-4">
                 <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
                   Dashboard
@@ -163,11 +165,11 @@ export function Navigation({ initialSession }: { initialSession: any }) {
                   </button>
                 </form>
               </div>
-            ) : (
+            ) : isHydrated ? (
               <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="mt-auto mb-12 block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
                 Login / Register
               </Link>
-            )}
+            ) : null}
           </motion.div>
         )}
       </AnimatePresence>

@@ -4,6 +4,7 @@ import './globals.css';
 import { Navigation } from '@/views/layout/Navigation';
 import { Footer } from '@/views/layout/Footer';
 import { createClient } from '@/models/supabaseServer';
+import { Toaster } from 'sonner';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -41,6 +42,7 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

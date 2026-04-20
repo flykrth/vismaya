@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { fetchMyCampers, submitRegistration } from '@/controllers/registrationController';
 import { Camper } from '@/models/supabaseClient';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export function RegistrationForm() {
   const searchParams = useSearchParams();
@@ -21,10 +22,16 @@ export function RegistrationForm() {
 
   useEffect(() => {
     async function loadCampers() {
-      const data = await fetchMyCampers();
-      setCampers(data);
-      if (data.length > 0) setSelectedCamper(data[0].id);
-      setLoading(false);
+      try {
+        const data = await fetchMyCampers();
+        setCampers(data);
+        if (data.length > 0) setSelectedCamper(data[0].id);
+      } catch (error) {
+        toast.error('Failed to load your campers');
+        console.error('Error loading campers:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     loadCampers();
   }, []);
@@ -39,6 +46,12 @@ export function RegistrationForm() {
     const res = await submitRegistration(selectedCamper, scheduleId);
     setResult(res);
     setSubmitting(false);
+    
+    if (res.success) {
+      toast.success(res.message || 'Successfully registered!');
+    } else {
+      toast.error(res.message || 'Failed to register.');
+    }
   };
 
   return (
@@ -82,7 +95,8 @@ export function RegistrationForm() {
                 <select 
                   value={selectedCamper}
                   onChange={(e) => setSelectedCamper(e.target.value)}
-                  className="w-full appearance-none bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold"
+                  disabled={submitting || result?.success}
+                  className="w-full appearance-none bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {campers.map(camper => (
                     <option key={camper.id} value={camper.id}>

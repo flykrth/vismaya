@@ -6,6 +6,7 @@ import { Compass, Calendar, MapPin, Users, Info } from 'lucide-react';
 import { Workshop } from '@/models/supabaseClient';
 import { fetchCatalog } from '@/controllers/catalogController';
 import Link from 'next/link';
+import { CatalogSkeleton } from './CatalogSkeleton';
 
 export function WorkshopCatalog() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -56,11 +57,7 @@ export function WorkshopCatalog() {
       </motion.div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1,2,3,4,5,6].map(i => (
-            <div key={i} className="h-96 rounded-3xl bg-surface-container-low animate-pulse border-2 border-surface-variant"></div>
-          ))}
-        </div>
+        <CatalogSkeleton />
       ) : (
         <motion.div 
           layout
@@ -100,7 +97,7 @@ export function WorkshopCatalog() {
 
                 <div className="space-y-4 pt-6 border-t border-dashed border-surface-variant mt-auto">
                   <Link 
-                    href={`/catalog/${workshop.id}`} 
+                    href={workshop.id ? `/catalog/${workshop.id}` : '#'} 
                     className="w-full flex items-center justify-center gap-2 bg-surface-container-low text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-sm"
                   >
                     View Details & Schedules <Compass size={18} />

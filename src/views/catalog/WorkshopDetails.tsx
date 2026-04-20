@@ -7,6 +7,8 @@ import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/cata
 import { Calendar, Clock, MapPin, Users, Loader2, ArrowLeft, BookOpen, User, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { WorkshopDetailsSkeleton } from './WorkshopDetailsSkeleton';
+import { toast } from 'sonner';
 
 export function WorkshopDetails({ workshopId }: { workshopId: string }) {
   const router = useRouter();
@@ -15,27 +17,38 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadData() {
-      const [workshopData, scheduleData] = await Promise.all([
-        fetchWorkshopById(workshopId),
-        fetchSchedulesForWorkshop(workshopId)
-      ]);
-      setWorkshop(workshopData);
-      setSchedules(scheduleData);
+    if (!workshopId || workshopId === 'undefined') {
       setLoading(false);
+      return;
+    }
+    
+    async function loadData() {
+      try {
+        const [workshopData, scheduleData] = await Promise.all([
+          fetchWorkshopById(workshopId),
+          fetchSchedulesForWorkshop(workshopId)
+        ]);
+        setWorkshop(workshopData);
+        setSchedules(scheduleData);
+        
+        if (!workshopData) {
+          toast.error('Workshop not found');
+        }
+      } catch (error) {
+        toast.error('Failed to load workshop details');
+        console.error('Error loading workshop:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     loadData();
   }, [workshopId]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen pt-32 flex justify-center items-center">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+    return <WorkshopDetailsSkeleton />;
   }
 
-  if (!workshop) {
+  if (!workshopId || workshopId === 'undefined' || !workshop) {
     return (
       <div className="min-h-screen pt-32 text-center">
         <h1 className="text-3xl font-headline font-bold">Workshop not found</h1>
