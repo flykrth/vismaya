@@ -1,8 +1,11 @@
 'use server';
 
-import { supabase, Workshop, Schedule } from '../models/supabaseClient';
+import { createClient } from '../models/supabaseServer';
+import { Workshop, Schedule } from '../models/supabaseClient';
 
 export async function fetchCatalog(): Promise<Workshop[]> {
+  const supabase = await createClient();
+
   // Fetch workshops
   const { data: workshops, error: workshopError } = await supabase
     .from('workshops')

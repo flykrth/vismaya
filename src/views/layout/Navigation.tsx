@@ -8,13 +8,27 @@ import Link from 'next/link';
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Client-side fetch for the Navigation UI
+    import('@/models/supabaseClient').then(({ supabase }) => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+
+      return () => subscription.unsubscribe();
+    });
   }, []);
 
   const navLinks = [
@@ -70,18 +84,34 @@ export function Navigation() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/catalog">
-              <motion.button 
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container text-surface-container-lowest px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 rough-edge border border-primary/40 group inline-block"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  Register Now
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </motion.button>
-            </Link>
+            {session ? (
+              <div className="flex items-center gap-4">
+                <Link href="/dashboard" className="font-bold text-sm text-on-surface hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+                <form action={async () => {
+                  const { logout } = await import('@/controllers/authController');
+                  await logout();
+                }}>
+                  <button type="submit" className="text-sm font-bold text-error hover:text-error/80 transition-colors">
+                    Logout
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link href="/login">
+                <motion.button 
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container text-surface-container-lowest px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 rough-edge border border-primary/40 group inline-block"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Login
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </motion.button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -129,14 +159,25 @@ export function Navigation() {
                 </motion.a>
               ))}
             </nav>
-            <motion.button 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mt-auto mb-12 bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge flex justify-center w-full"
-            >
-              Register Now
-            </motion.button>
+            {session ? (
+              <div className="mt-auto mb-12 space-y-4">
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
+                  Dashboard
+                </Link>
+                <form action={async () => {
+                  const { logout } = await import('@/controllers/authController');
+                  await logout();
+                }}>
+                  <button type="submit" className="w-full text-center font-bold text-error text-lg p-4">
+                    Logout
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="mt-auto mb-12 block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
+                Login / Register
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

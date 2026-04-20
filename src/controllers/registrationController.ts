@@ -1,12 +1,16 @@
 'use server';
 
-import { supabase, Camper } from '../models/supabaseClient';
+import { createClient } from '../models/supabaseServer';
+import { Camper } from '../models/supabaseClient';
 
-export async function fetchMyCampers(parentId: string): Promise<Camper[]> {
+export async function fetchMyCampers(): Promise<Camper[]> {
+  const supabase = await createClient();
+  
+  // Securely fetches only campers belonging to the authenticated parent
   const { data, error } = await supabase
     .from('campers')
     .select('*')
-    .eq('parent_id', parentId);
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching campers:', error);
@@ -17,6 +21,8 @@ export async function fetchMyCampers(parentId: string): Promise<Camper[]> {
 }
 
 export async function submitRegistration(camperId: string, scheduleId: string) {
+  const supabase = await createClient();
+
   try {
     const { data, error } = await supabase
       .from('registrations')

@@ -8,9 +8,6 @@ import { fetchMyCampers, submitRegistration } from '@/controllers/registrationCo
 import { Camper } from '@/models/supabaseClient';
 import Link from 'next/link';
 
-// Mock parent ID for testing since we don't have full Auth UI yet
-const MOCK_PARENT_ID = '11111111-1111-1111-1111-111111111111';
-
 export function RegistrationForm() {
   const searchParams = useSearchParams();
   const scheduleId = searchParams?.get('scheduleId') || '';
@@ -24,7 +21,7 @@ export function RegistrationForm() {
 
   useEffect(() => {
     async function loadCampers() {
-      const data = await fetchMyCampers(MOCK_PARENT_ID);
+      const data = await fetchMyCampers();
       setCampers(data);
       if (data.length > 0) setSelectedCamper(data[0].id);
       setLoading(false);
