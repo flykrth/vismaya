@@ -48,3 +48,9 @@ export interface Registration {
   status: RegistrationStatus;
   created_at: string;
 }
+
+export interface RegistrationWithDetails extends Registration {
+  camper: Pick<Camper, 'id' | 'full_name' | 'age_category'>;
+  schedule: Pick<Schedule, 'id' | 'start_time' | 'end_time' | 'venue' | 'max_capacity' | 'current_enrollment'>;
+  workshop: Pick<Workshop, 'id' | 'title'>;
+}

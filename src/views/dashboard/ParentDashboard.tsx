@@ -2,25 +2,37 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camper } from '@/models/supabaseClient';
-import { fetchMySecureCampers, addCamper } from '@/controllers/dashboardController';
-import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent } from 'lucide-react';
+import { Camper, RegistrationWithDetails } from '@/models/supabaseClient';
+import { fetchMySecureCampers, addCamper, fetchMyRegistrations, cancelRegistration } from '@/controllers/dashboardController';
+import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent, BookOpen, Clock, MapPin, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export function ParentDashboard() {
   const [campers, setCampers] = useState<Camper[]>([]);
+  const [registrations, setRegistrations] = useState<RegistrationWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [cancellingRegistrationId, setCancellingRegistrationId] = useState<string | null>(null);
   const [addResult, setAddResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
-    async function loadCampers() {
-      const { campers: data, error } = await fetchMySecureCampers();
-      if (data) setCampers(data);
+    async function loadDashboardData() {
+      const [{ campers: camperData }, { registrations: registrationData, error: registrationError }] = await Promise.all([
+        fetchMySecureCampers(),
+        fetchMyRegistrations(),
+      ]);
+
+      if (camperData) setCampers(camperData);
+      if (registrationData) setRegistrations(registrationData);
+      if (registrationError) {
+        toast.error(registrationError);
+      }
+
       setLoading(false);
     }
-    loadCampers();
+    loadDashboardData();
   }, []);
 
   const handleAddCamper = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,15 +47,37 @@ export function ParentDashboard() {
     setAdding(false);
 
     if (result.success) {
-      // Reload campers
-      const { campers: data } = await fetchMySecureCampers();
+      const [{ campers: data }, { registrations: registrationData }] = await Promise.all([
+        fetchMySecureCampers(),
+        fetchMyRegistrations(),
+      ]);
+
       if (data) setCampers(data);
+      if (registrationData) setRegistrations(registrationData);
+
       // Close modal after 2 seconds
       setTimeout(() => {
         setShowAddModal(false);
         setAddResult(null);
       }, 2000);
     }
+  };
+
+  const handleCancelRegistration = async (registrationId: string) => {
+    setCancellingRegistrationId(registrationId);
+
+    const result = await cancelRegistration(registrationId);
+
+    if (!result.success) {
+      toast.error(result.message || 'Unable to cancel registration.');
+      setCancellingRegistrationId(null);
+      return;
+    }
+
+    const { registrations: registrationData } = await fetchMyRegistrations();
+    setRegistrations(registrationData);
+    toast.success(result.message || 'Registration cancelled successfully.');
+    setCancellingRegistrationId(null);
   };
 
   return (
@@ -130,6 +164,93 @@ export function ParentDashboard() {
           </AnimatePresence>
         </div>
       )}
+
+      <div className="mt-16">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center border border-primary/20">
+            <BookOpen size={24} />
+          </div>
+          <div>
+            <h2 className="font-headline text-3xl font-bold text-on-surface">Registered Workshops</h2>
+            <p className="font-body text-on-surface-variant">View and manage all active workshop bookings.</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          </div>
+        ) : registrations.length === 0 ? (
+          <div className="bg-surface-container-low border-2 border-dashed border-surface-variant rounded-[2.5rem] p-10 text-center">
+            <p className="font-body text-on-surface-variant">No active workshop registrations yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {registrations.map((registration) => {
+              const startTime = new Date(registration.schedule.start_time);
+              const endTime = new Date(registration.schedule.end_time);
+              const remainingSpots = Math.max(registration.schedule.max_capacity - registration.schedule.current_enrollment, 0);
+
+              return (
+                <motion.div
+                  key={registration.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[2rem] p-6 md:p-8 shadow-lg border-2 border-surface-container-lowest"
+                >
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div className="space-y-3">
+                      <h3 className="font-headline text-2xl font-bold text-on-surface">{registration.workshop.title}</h3>
+                      <p className="font-body text-on-surface-variant text-sm">
+                        Camper: <span className="font-bold text-on-surface">{registration.camper.full_name}</span>
+                      </p>
+
+                      <div className="flex flex-col gap-2 text-sm font-body text-on-surface-variant">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-primary" />
+                          {startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} className="text-primary" />
+                          {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} className="text-primary" />
+                          {registration.schedule.venue}
+                        </div>
+                      </div>
+
+                      <span className={`inline-flex mt-2 px-4 py-1.5 rounded-xl text-xs font-bold border ${remainingSpots === 0 ? 'text-error border-error/30 bg-error-container/30' : 'text-green-700 border-green-200 bg-green-50'}`}>
+                        Remaining spots {remainingSpots}/{registration.schedule.max_capacity}
+                      </span>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => handleCancelRegistration(registration.id)}
+                      disabled={cancellingRegistrationId === registration.id}
+                      className="h-fit w-full md:w-auto bg-error text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {cancellingRegistrationId === registration.id ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          Cancelling...
+                        </>
+                      ) : (
+                        <>
+                          <XCircle size={18} />
+                          Cancel Registration
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Add Camper Modal */}
       <AnimatePresence>

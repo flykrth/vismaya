@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Calendar, MapPin, Users, Info } from 'lucide-react';
+import { Compass, Users } from 'lucide-react';
 import { Workshop } from '@/models/supabaseClient';
 import { fetchCatalog } from '@/controllers/catalogController';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ export function WorkshopCatalog() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'sub-junior' | 'junior' | 'senior'>('all');
+  const ageFilters: Array<'all' | 'sub-junior' | 'junior' | 'senior'> = ['all', 'sub-junior', 'junior', 'senior'];
 
   useEffect(() => {
     async function loadCatalog() {
@@ -40,10 +41,10 @@ export function WorkshopCatalog() {
 
         {/* Filter Badges */}
         <div className="flex flex-wrap justify-center gap-4 mt-10">
-          {['all', 'sub-junior', 'junior', 'senior'].map((ageFilter) => (
+          {ageFilters.map((ageFilter) => (
             <button
               key={ageFilter}
-              onClick={() => setFilter(ageFilter as any)}
+              onClick={() => setFilter(ageFilter)}
               className={`px-6 py-2 rounded-full font-bold text-sm transition-all border-2 border-dashed rough-edge ${
                 filter === ageFilter 
                   ? 'bg-primary text-white border-primary/20 scale-105 shadow-md' 
@@ -65,6 +66,12 @@ export function WorkshopCatalog() {
         >
           <AnimatePresence>
             {filteredWorkshops.map((workshop) => (
+              (() => {
+                const totalCapacity = (workshop.schedules || []).reduce((sum, schedule) => sum + schedule.max_capacity, 0);
+                const totalBooked = (workshop.schedules || []).reduce((sum, schedule) => sum + schedule.current_enrollment, 0);
+                const remainingSpots = Math.max(totalCapacity - totalBooked, 0);
+
+                return (
               <motion.div
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -96,6 +103,12 @@ export function WorkshopCatalog() {
                 </div>
 
                 <div className="space-y-4 pt-6 border-t border-dashed border-surface-variant mt-auto">
+                  <div className="flex items-center gap-2 font-body text-sm font-bold">
+                    <Users size={16} className={remainingSpots === 0 ? 'text-error' : 'text-green-600'} />
+                    <span className={remainingSpots === 0 ? 'text-error' : 'text-green-600'}>
+                      Remaining spots {remainingSpots}/{totalCapacity}
+                    </span>
+                  </div>
                   <Link 
                     href={workshop.id ? `/catalog/${workshop.id}` : '#'} 
                     className="w-full flex items-center justify-center gap-2 bg-surface-container-low text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-sm"
@@ -104,6 +117,8 @@ export function WorkshopCatalog() {
                   </Link>
                 </div>
               </motion.div>
+                );
+              })()
             ))}
           </AnimatePresence>
         </motion.div>

@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '../models/supabaseServer';
-import { Camper } from '../models/supabaseClient';
+import { Camper, RegistrationWithDetails } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
 
 export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error?: string }> {
@@ -53,4 +53,96 @@ export async function addCamper(formData: FormData) {
   revalidatePath('/register');
 
   return { success: true, message: 'Camper successfully added!' };
+}
+
+export async function fetchMyRegistrations(): Promise<{ registrations: RegistrationWithDetails[], error?: string }> {
+  const supabase = await createClient();
+
+  type DashboardRegistrationRow = {
+    id: string;
+    camper_id: string;
+    schedule_id: string;
+    status: 'registered' | 'waitlisted' | 'cancelled';
+    created_at: string;
+    campers: {
+      id: string;
+      full_name: string;
+      age_category: 'sub-junior' | 'junior' | 'senior';
+    };
+    schedules: {
+      id: string;
+      start_time: string;
+      end_time: string;
+      venue: string;
+      max_capacity: number;
+      current_enrollment: number;
+      workshops: {
+        id: string;
+        title: string;
+      };
+    };
+  };
+
+  const { data, error } = await supabase
+    .from('registrations')
+    .select(`
+      id,
+      camper_id,
+      schedule_id,
+      status,
+      created_at,
+      campers!inner(id, full_name, age_category),
+      schedules!inner(id, workshop_id, start_time, end_time, venue, max_capacity, current_enrollment, workshops!inner(id, title))
+    `)
+    .neq('status', 'cancelled')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return { registrations: [], error: error.message };
+  }
+
+  const registrations: RegistrationWithDetails[] = ((data || []) as DashboardRegistrationRow[]).map((row) => ({
+    id: row.id,
+    camper_id: row.camper_id,
+    schedule_id: row.schedule_id,
+    status: row.status,
+    created_at: row.created_at,
+    camper: {
+      id: row.campers.id,
+      full_name: row.campers.full_name,
+      age_category: row.campers.age_category,
+    },
+    schedule: {
+      id: row.schedules.id,
+      start_time: row.schedules.start_time,
+      end_time: row.schedules.end_time,
+      venue: row.schedules.venue,
+      max_capacity: row.schedules.max_capacity,
+      current_enrollment: row.schedules.current_enrollment,
+    },
+    workshop: {
+      id: row.schedules.workshops.id,
+      title: row.schedules.workshops.title,
+    },
+  }));
+
+  return { registrations };
+}
+
+export async function cancelRegistration(registrationId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('registrations')
+    .update({ status: 'cancelled' })
+    .eq('id', registrationId)
+    .neq('status', 'cancelled');
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/catalog');
+  return { success: true, message: 'Registration cancelled successfully.' };
 }

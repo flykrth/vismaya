@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Workshop, Schedule } from '@/models/supabaseClient';
 import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/catalogController';
-import { Calendar, Clock, MapPin, Users, Loader2, ArrowLeft, BookOpen, User, Camera } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { WorkshopDetailsSkeleton } from './WorkshopDetailsSkeleton';
@@ -160,7 +160,8 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
                 schedules.map((schedule, i) => {
                   const startTime = new Date(schedule.start_time);
                   const endTime = new Date(schedule.end_time);
-                  const isFull = schedule.current_enrollment >= schedule.max_capacity;
+                  const remainingSpots = Math.max(schedule.max_capacity - schedule.current_enrollment, 0);
+                  const isFull = remainingSpots === 0;
                   
                   return (
                     <motion.div 
@@ -187,7 +188,7 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
                           <div className="flex items-center gap-2 font-body text-sm font-bold">
                             <Users size={16} className={isFull ? 'text-error' : 'text-green-600'} />
                             <span className={isFull ? 'text-error' : 'text-green-600'}>
-                              {schedule.current_enrollment} / {schedule.max_capacity} Booked
+                              Remaining spots {remainingSpots}/{schedule.max_capacity}
                             </span>
                           </div>
                         </div>
