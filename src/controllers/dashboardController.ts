@@ -58,6 +58,11 @@ export async function addCamper(formData: FormData) {
 export async function fetchMyRegistrations(): Promise<{ registrations: RegistrationWithDetails[], error?: string }> {
   const supabase = await createClient();
 
+  const pickFirst = <T>(value: T | T[] | null | undefined): T | null => {
+    if (!value) return null;
+    return Array.isArray(value) ? (value[0] ?? null) : value;
+  };
+
   type DashboardRegistrationRow = {
     id: string;
     camper_id: string;
@@ -68,7 +73,11 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
       id: string;
       full_name: string;
       age_category: 'sub-junior' | 'junior' | 'senior';
-    };
+    } | {
+      id: string;
+      full_name: string;
+      age_category: 'sub-junior' | 'junior' | 'senior';
+    }[];
     schedules: {
       id: string;
       start_time: string;
@@ -79,8 +88,25 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
       workshops: {
         id: string;
         title: string;
-      };
-    };
+      } | {
+        id: string;
+        title: string;
+      }[];
+    } | {
+      id: string;
+      start_time: string;
+      end_time: string;
+      venue: string;
+      max_capacity: number;
+      current_enrollment: number;
+      workshops: {
+        id: string;
+        title: string;
+      } | {
+        id: string;
+        title: string;
+      }[];
+    }[];
   };
 
   const { data, error } = await supabase
@@ -101,30 +127,42 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
     return { registrations: [], error: error.message };
   }
 
-  const registrations: RegistrationWithDetails[] = ((data || []) as DashboardRegistrationRow[]).map((row) => ({
-    id: row.id,
-    camper_id: row.camper_id,
-    schedule_id: row.schedule_id,
-    status: row.status,
-    created_at: row.created_at,
-    camper: {
-      id: row.campers.id,
-      full_name: row.campers.full_name,
-      age_category: row.campers.age_category,
-    },
-    schedule: {
-      id: row.schedules.id,
-      start_time: row.schedules.start_time,
-      end_time: row.schedules.end_time,
-      venue: row.schedules.venue,
-      max_capacity: row.schedules.max_capacity,
-      current_enrollment: row.schedules.current_enrollment,
-    },
-    workshop: {
-      id: row.schedules.workshops.id,
-      title: row.schedules.workshops.title,
-    },
-  }));
+  const registrations: RegistrationWithDetails[] = ((data || []) as unknown as DashboardRegistrationRow[])
+    .map((row) => {
+      const camper = pickFirst(row.campers);
+      const schedule = pickFirst(row.schedules);
+      const workshop = schedule ? pickFirst(schedule.workshops) : null;
+
+      if (!camper || !schedule || !workshop) {
+        return null;
+      }
+
+      return {
+        id: row.id,
+        camper_id: row.camper_id,
+        schedule_id: row.schedule_id,
+        status: row.status,
+        created_at: row.created_at,
+        camper: {
+          id: camper.id,
+          full_name: camper.full_name,
+          age_category: camper.age_category,
+        },
+        schedule: {
+          id: schedule.id,
+          start_time: schedule.start_time,
+          end_time: schedule.end_time,
+          venue: schedule.venue,
+          max_capacity: schedule.max_capacity,
+          current_enrollment: schedule.current_enrollment,
+        },
+        workshop: {
+          id: workshop.id,
+          title: workshop.title,
+        },
+      };
+    })
+    .filter((row): row is RegistrationWithDetails => row !== null);
 
   return { registrations };
 }

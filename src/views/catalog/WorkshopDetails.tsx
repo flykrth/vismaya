@@ -14,11 +14,11 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
   const router = useRouter();
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const hasValidWorkshopId = Boolean(workshopId && workshopId !== 'undefined');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!workshopId || workshopId === 'undefined') {
-      setLoading(false);
+    if (!hasValidWorkshopId) {
       return;
     }
     
@@ -42,9 +42,9 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
       }
     }
     loadData();
-  }, [workshopId]);
+  }, [workshopId, hasValidWorkshopId]);
 
-  if (loading) {
+  if (hasValidWorkshopId && loading) {
     return <WorkshopDetailsSkeleton />;
   }
 
@@ -109,7 +109,7 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
             <div className="mt-12 bg-surface-container-low p-8 rounded-[2rem] border border-surface-variant rough-edge relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[100px] pointer-events-none"></div>
               <h2 className="text-2xl font-bold text-on-surface flex items-center gap-2 mb-6 mt-0">
-                <BookOpen className="text-secondary" /> What You'll Learn
+                <BookOpen className="text-secondary" /> What You&apos;ll Learn
               </h2>
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>

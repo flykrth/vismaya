@@ -36,7 +36,7 @@ export function WorkshopCatalog() {
       >
         <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Discover Our Expeditions</h1>
         <p className="font-body text-xl text-on-surface-variant leading-relaxed">
-          From wilderness survival to mindful artistry, find the perfect journey for your camper's spirit.
+          From wilderness survival to mindful artistry, find the perfect journey for your camper&apos;s spirit.
         </p>
 
         {/* Filter Badges */}
