@@ -5,30 +5,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Compass, Tent, Sun, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
-export function Navigation() {
+export function Navigation({ initialSession }: { initialSession: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<any>(initialSession);
+
+  useEffect(() => {
+    // If initialSession changes from server, update it
+    setSession(initialSession);
+  }, [initialSession]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    // Client-side fetch for the Navigation UI
-    import('@/models/supabaseClient').then(({ supabase }) => {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session);
-      });
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-      });
-
-      return () => subscription.unsubscribe();
-    });
   }, []);
 
   const navLinks = [

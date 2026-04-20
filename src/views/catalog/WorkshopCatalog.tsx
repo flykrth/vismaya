@@ -99,31 +99,12 @@ export function WorkshopCatalog() {
                 </div>
 
                 <div className="space-y-4 pt-6 border-t border-dashed border-surface-variant mt-auto">
-                  {workshop.schedules?.slice(0, 2).map(schedule => (
-                    <div key={schedule.id} className="bg-surface-container-low rounded-2xl p-4 flex flex-col gap-2 relative group/sched border border-transparent hover:border-primary/20 transition-colors">
-                      <div className="flex items-center gap-2 text-sm text-on-surface font-semibold">
-                        <Calendar size={16} className="text-primary" />
-                        {new Date(schedule.start_time).toLocaleDateString()}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-                        <MapPin size={14} /> {schedule.venue}
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs font-bold bg-white px-2 py-1 rounded-lg border border-surface-variant flex items-center gap-1">
-                          <Users size={12} /> {schedule.current_enrollment} / {schedule.max_capacity}
-                        </span>
-                        
-                        <Link href={`/register?scheduleId=${schedule.id}&workshopTitle=${encodeURIComponent(workshop.title)}`} className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-md">
-                          Book Spot
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                  {(workshop.schedules?.length || 0) > 2 && (
-                    <div className="text-center text-sm font-bold text-primary flex items-center justify-center gap-1 pt-2">
-                      <Info size={16} /> +{(workshop.schedules?.length || 0) - 2} more schedules
-                    </div>
-                  )}
+                  <Link 
+                    href={`/catalog/${workshop.id}`} 
+                    className="w-full flex items-center justify-center gap-2 bg-surface-container-low text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-sm"
+                  >
+                    View Details & Schedules <Compass size={18} />
+                  </Link>
                 </div>
               </motion.div>
             ))}

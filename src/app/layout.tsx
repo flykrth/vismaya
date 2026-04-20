@@ -1,7 +1,9 @@
 import { Plus_Jakarta_Sans, Manrope, Caveat } from 'next/font/google';
+import { Metadata } from 'next';
 import './globals.css';
 import { Navigation } from '@/views/layout/Navigation';
 import { Footer } from '@/views/layout/Footer';
+import { createClient } from '@/models/supabaseServer';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -15,24 +17,27 @@ const manrope = Manrope({
 
 const caveat = Caveat({
   subsets: ['latin'],
-  variable: '--font-handdrawn',
+  variable: '--font-accent',
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Vismaya Camp 2026',
-  description: 'Embody the Radiant Horizon at Vismaya Camp.',
+  description: 'A transformative summer camp experience blending adventure and spirituality.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${manrope.variable} ${caveat.variable}`}>
-      <body className="antialiased min-h-screen flex flex-col relative overflow-x-hidden">
-        <Navigation />
-        <main className="flex-grow relative z-10">
+    <html lang="en" className={`${plusJakartaSans.variable} ${manrope.variable} ${caveat.variable} scroll-smooth`}>
+      <body className="font-body bg-surface-container-lowest text-on-surface antialiased selection:bg-primary/30 selection:text-primary">
+        <Navigation initialSession={session} />
+        <main className="min-h-screen">
           {children}
         </main>
         <Footer />
