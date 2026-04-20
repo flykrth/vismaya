@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Compass, Tent, Sun, Image as ImageIcon } from 'lucide-react';
+import { Menu, X, Sun } from 'lucide-react';
 import Link from 'next/link';
 
 export function Navigation({ initialSession }: { initialSession: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [session, setSession] = useState<any>(initialSession);
 
   useEffect(() => {
-    // Set initial session after hydration to prevent mismatch
     setSession(initialSession);
-    setIsHydrated(true);
   }, [initialSession]);
 
   useEffect(() => {
@@ -22,13 +19,6 @@ export function Navigation({ initialSession }: { initialSession: any }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const navLinks = [
-    { name: 'Adventures', href: '/catalog', icon: Compass },
-    { name: 'Camp Life', href: '/#camp-life', icon: Tent },
-    { name: 'Spiritual Path', href: '/#spiritual', icon: Sun },
-    { name: 'Gallery', href: '/#gallery', icon: ImageIcon },
-  ];
 
   return (
     <>
@@ -57,26 +47,9 @@ export function Navigation({ initialSession }: { initialSession: any }) {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 font-body font-medium">
-            {navLinks.map((link, i) => (
-              <Link 
-                key={link.name} 
-                href={link.href}
-                className="group relative px-2 py-1 text-on-surface-variant hover:text-primary transition-colors"
-              >
-                <span className="relative z-10">{link.name}</span>
-                <motion.div
-                  className="absolute inset-0 bg-primary/10 rounded-lg -z-10 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all"
-                  layoutId="hover-bg"
-                />
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all group-hover:w-full rounded-full"></span>
-              </Link>
-            ))}
-          </nav>
-
+          {/* Right Side Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
-            {isHydrated && session ? (
+            {session ? (
               <div className="flex items-center gap-4">
                 <Link href="/dashboard" className="font-bold text-sm text-on-surface hover:text-primary transition-colors">
                   Dashboard
@@ -135,23 +108,7 @@ export function Navigation({ initialSession }: { initialSession: any }) {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 bg-surface/95 backdrop-blur-3xl pt-24 px-6 md:hidden flex flex-col"
           >
-            <nav className="flex flex-col gap-6 text-2xl font-headline font-bold">
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={link.name}
-                  href={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-4 text-on-surface hover:text-primary transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <link.icon className="text-primary/50" />
-                  {link.name}
-                </motion.a>
-              ))}
-            </nav>
-            {isHydrated && session ? (
+            {session ? (
               <div className="mt-auto mb-12 space-y-4">
                 <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
                   Dashboard
@@ -165,11 +122,11 @@ export function Navigation({ initialSession }: { initialSession: any }) {
                   </button>
                 </form>
               </div>
-            ) : isHydrated ? (
+            ) : (
               <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="mt-auto mb-12 block bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-2xl font-bold text-xl shadow-xl rough-edge text-center">
                 Login / Register
               </Link>
-            ) : null}
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sun } from 'lucide-react';
+import { FlagTriangleLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export function Footer() {
@@ -28,20 +28,29 @@ export function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 font-body text-sm tracking-wide text-on-surface transition-colors duration-200 z-10 relative">
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="text-2xl font-extrabold text-secondary font-headline flex items-center gap-2">
-            <Sun className="w-6 h-6 text-secondary" />
+            <FlagTriangleLeft className="w-6 h-6 text-secondary" />
             Vismaya Camp
           </div>
-          <p className="text-on-surface-variant font-handdrawn text-xl">© 2026 Vismaya Camp. Embody the Radiant Horizon.</p>
+          <p className="text-on-surface-variant font-handdrawn text-xl">© 2026 Amrita LEAP</p>
         </div>
         
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-          {['Privacy Policy', 'Terms of Adventure', 'Contact Us', 'Careers'].map((link) => (
+        <div className="flex flex-wrap justify-center gap-6 md:gap-12">
+          {[
+            { label: 'Contact Us', value: '+91 97784 02692', href: 'tel:+919778402692' },
+            { label: 'Email', value: 'amritaleap@am.amrita.edu', href: 'mailto:amritaleap@am.amrita.edu' },
+            { label: 'Instagram', value: '@amrita_leap', href: 'https://www.instagram.com/amrita_leap' },
+          ].map((item) => (
             <Link 
-              key={link} 
-              href="#" 
-              className="text-on-surface-variant hover:text-secondary underline decoration-secondary/30 decoration-wavy underline-offset-8 transition-all font-medium hover:scale-105 inline-block"
+              key={item.label} 
+              href={item.href}
+              target={item.label === 'Instagram' ? '_blank' : undefined}
+              rel={item.label === 'Instagram' ? 'noopener noreferrer' : undefined}
+              className="text-on-surface-variant hover:text-secondary underline decoration-secondary/30 decoration-wavy underline-offset-8 transition-all font-medium hover:scale-105 inline-block group"
             >
-              {link}
+              <div className="flex flex-col items-center">
+                <span className="text-xs uppercase tracking-widest opacity-60 mb-1">{item.label}</span>
+                <span className="text-lg">{item.value}</span>
+              </div>
             </Link>
           ))}
         </div>

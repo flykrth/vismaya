@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Compass, Sparkles, Users } from 'lucide-react';
+import { FlaskConical, Palette, Trophy } from 'lucide-react';
 import Image from 'next/image';
 
 export function MissionGrid() {
@@ -37,8 +37,8 @@ export function MissionGrid() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-20 max-w-2xl mx-auto relative"
         >
-          <h2 className="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-6">Our Philosophy</h2>
-          <p className="font-body text-lg text-on-surface-variant leading-relaxed">We believe in the transformative power of nature, community, and intentional living. Every moment is designed to awaken your spirit.</p>
+          <h2 className="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-6">Key Highlights</h2>
+          <p className="font-body text-lg text-on-surface-variant leading-relaxed">We have carefully curated a blend of activities to nurture your child intellectually, creatively and emotionally.</p>
         </motion.div>
 
         <motion.div 
@@ -59,19 +59,15 @@ export function MissionGrid() {
             
             <div className="flex-1 flex flex-col justify-center relative z-10">
               <div className="w-16 h-16 bg-primary-container/20 rounded-2xl flex items-center justify-center text-primary mb-6 border border-dashed border-primary/50 group-hover:scale-110 transition-transform duration-300">
-                <Compass size={32} />
+                <FlaskConical size={32} />
               </div>
-              <h3 className="font-headline text-3xl font-bold text-on-surface mb-4">Guided Expeditions</h3>
-              <p className="text-on-surface-variant leading-relaxed mb-6 font-body text-lg">Traverse unseen trails with expert guides who weave local folklore and mindfulness practices into every hike.</p>
-              <a className="text-primary font-bold hover:text-primary-container inline-flex items-center gap-2 mt-auto w-fit font-handdrawn text-2xl group/link" href="#">
-                Learn More 
-                <span className="group-hover/link:translate-x-2 transition-transform">→</span>
-              </a>
+              <h3 className="font-headline text-3xl font-bold text-on-surface mb-4">Science & Innovation</h3>
+              <p className="text-on-surface-variant leading-relaxed mb-6 font-body text-lg">Dive into the wonders of the scientific world through hands-on experiments and mind-bending challenges.</p>
             </div>
             <div className="flex-1 rounded-[2rem] rounded-tl-[4rem] rounded-br-[4rem] overflow-hidden hidden md:block border-4 border-white shadow-lg transform rotate-[-2deg] relative group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
               <Image 
-                src="/hikers_sunrise_premium_1776617080705.png"
-                alt="Hikers on a mountain trail at sunrise" 
+                src="/ScienceInnovation.jpg"
+                alt="Children raising their hands" 
                 fill
                 className="object-cover"
               />
@@ -86,10 +82,10 @@ export function MissionGrid() {
           >
             <div>
               <div className="w-16 h-16 bg-secondary-container/30 text-secondary rounded-2xl flex items-center justify-center mb-6 border border-dashed border-secondary/50 group-hover:rotate-12 transition-transform duration-300">
-                <Sparkles size={32} />
+                <Palette size={32} />
               </div>
-              <h3 className="font-headline text-2xl font-bold text-on-surface mb-3">Spiritual Grounding</h3>
-              <p className="text-on-surface-variant text-base leading-relaxed font-body">Daily meditation and yoga sessions led by seasoned practitioners in serene settings.</p>
+              <h3 className="font-headline text-2xl font-bold text-on-surface mb-3">Art & Creativity</h3>
+              <p className="text-on-surface-variant text-base leading-relaxed font-body">Unleash your inner artist! From creative workshops to expressive arts, show the world what you can create.</p>
             </div>
           </motion.div>
 
@@ -101,10 +97,10 @@ export function MissionGrid() {
           >
             <div>
               <div className="w-16 h-16 bg-tertiary-container/30 text-tertiary rounded-2xl flex items-center justify-center mb-6 border border-dashed border-tertiary/50 group-hover:-rotate-12 transition-transform duration-300">
-                <Users size={32} />
+                <Trophy size={32} />
               </div>
-              <h3 className="font-headline text-2xl font-bold text-on-surface mb-3">Community Bonding</h3>
-              <p className="text-on-surface-variant text-base leading-relaxed font-body">Forge lifelong friendships around the campfire through shared stories and songs.</p>
+              <h3 className="font-headline text-2xl font-bold text-on-surface mb-3">Games & Fun</h3>
+              <p className="text-on-surface-variant text-base leading-relaxed font-body">Laughter and excitement are guaranteed! Build lasting friendships through team games and spirited outdoor activities.</p>
             </div>
           </motion.div>
 
@@ -115,15 +111,15 @@ export function MissionGrid() {
             className="md:col-span-2 relative rounded-[3rem] rounded-bl-[6rem] rounded-tr-[5rem] overflow-hidden group min-h-[350px] border-8 border-white shadow-2xl transform rotate-[-1deg] duration-500"
           >
             <Image 
-              src="/nightly_fire_premium_1776617099683.png"
+              src="/Potential.jpeg"
               alt="Campers gathered around a fire at dusk" 
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-1000"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
             <div className="absolute bottom-0 left-0 p-10 w-full transform group-hover:translate-y-[-10px] transition-transform duration-500">
-              <h3 className="font-handdrawn text-5xl font-bold text-white mb-2 tracking-wide drop-shadow-md">The Nightly Fire</h3>
-              <p className="text-white/90 max-w-md font-body text-lg drop-shadow-md">Where the day's adventures turn into tomorrow's legends.</p>
+              <h3 className="font-handdrawn text-5xl font-bold text-white mb-2 tracking-wide drop-shadow-md">Self-discovery</h3>
+              <p className="text-white/90 max-w-md font-body text-lg drop-shadow-md">Unlock your hidden potential.</p>
             </div>
           </motion.div>
         </motion.div>
