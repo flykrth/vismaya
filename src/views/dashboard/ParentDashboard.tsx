@@ -164,7 +164,7 @@ export function ParentDashboard() {
                     <span className="text-sm font-bold bg-secondary-container/30 text-secondary px-4 py-2 rounded-xl border border-secondary/20">
                       Category: {camper.age_category}
                     </span>
-                    <Link href={`/catalog`} className="text-primary font-bold text-sm hover:underline decoration-wavy underline-offset-4 decoration-primary/40">
+                    <Link href={`/catalog?camperId=${camper.id}`} className="text-primary font-bold text-sm hover:underline decoration-wavy underline-offset-4 decoration-primary/40">
                       Browse Workshops →
                     </Link>
                   </div>

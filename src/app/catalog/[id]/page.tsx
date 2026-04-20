@@ -6,6 +6,10 @@ type WorkshopPageParams = {
   id: string;
 };
 
+type WorkshopPageSearchParams = {
+  camperId?: string;
+};
+
 export async function generateMetadata({ params }: { params: Promise<WorkshopPageParams> }) {
   const { id } = await params;
 
@@ -22,8 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<WorkshopPag
   };
 }
 
-export default async function WorkshopPage({ params }: { params: Promise<WorkshopPageParams> }) {
+export default async function WorkshopPage({ params, searchParams }: { params: Promise<WorkshopPageParams>; searchParams: Promise<WorkshopPageSearchParams> }) {
   const { id } = await params;
+  const { camperId } = await searchParams;
 
   if (!id || id === 'undefined') {
     notFound();
@@ -35,5 +40,5 @@ export default async function WorkshopPage({ params }: { params: Promise<Worksho
     notFound();
   }
 
-  return <WorkshopDetails workshopId={id} />;
+  return <WorkshopDetails workshopId={id} selectedCamperId={camperId} />;
 }

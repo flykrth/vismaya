@@ -13,19 +13,44 @@ export function RegistrationForm() {
   const searchParams = useSearchParams();
   const scheduleId = searchParams?.get('scheduleId') || '';
   const workshopTitle = searchParams?.get('workshopTitle') || 'Selected Workshop';
+  const selectedCamperFromCatalog = searchParams?.get('camperId') || '';
 
   const [campers, setCampers] = useState<Camper[]>([]);
   const [selectedCamper, setSelectedCamper] = useState<string>('');
+  const [lockedCamper, setLockedCamper] = useState<Camper | null>(null);
+  const [mustSelectFromCatalog, setMustSelectFromCatalog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string; data?: any } | null>(null);
+  const [result, setResult] = useState<{ success: boolean; message: string; data?: unknown } | null>(null);
 
   useEffect(() => {
     async function loadCampers() {
       try {
         const data = await fetchMyCampers();
         setCampers(data);
-        if (data.length > 0) setSelectedCamper(data[0].id);
+
+        if (data.length === 0) {
+          return;
+        }
+
+        if (selectedCamperFromCatalog) {
+          const matchedCamper = data.find((camper) => camper.id === selectedCamperFromCatalog);
+          if (matchedCamper) {
+            setSelectedCamper(matchedCamper.id);
+            setLockedCamper(matchedCamper);
+            setMustSelectFromCatalog(false);
+            return;
+          }
+        }
+
+        if (data.length === 1) {
+          setSelectedCamper(data[0].id);
+          setLockedCamper(data[0]);
+          setMustSelectFromCatalog(false);
+          return;
+        }
+
+        setMustSelectFromCatalog(true);
       } catch (error) {
         toast.error('Failed to load your campers');
         console.error('Error loading campers:', error);
@@ -34,11 +59,11 @@ export function RegistrationForm() {
       }
     }
     loadCampers();
-  }, []);
+  }, [selectedCamperFromCatalog]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCamper || !scheduleId) return;
+    if (!selectedCamper || !scheduleId || mustSelectFromCatalog) return;
 
     setSubmitting(true);
     setResult(null);
@@ -87,26 +112,21 @@ export function RegistrationForm() {
             <p className="text-error font-bold font-body">No campers found for your account.</p>
             <p className="text-sm text-error/80 mt-1">Please add a camper to your profile first.</p>
           </div>
+        ) : mustSelectFromCatalog ? (
+          <div className="text-center p-6 bg-error-container/20 rounded-2xl border border-error/20">
+            <AlertCircle className="w-8 h-8 text-error mx-auto mb-2" />
+            <p className="text-error font-bold font-body">Please choose a camper from catalog first.</p>
+            <p className="text-sm text-error/80 mt-1">This registration is linked to one selected camper only.</p>
+            <Link href="/catalog" className="mt-4 inline-block bg-primary text-white px-5 py-2 rounded-xl font-bold">
+              Choose Camper in Catalog
+            </Link>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="font-headline font-bold text-on-surface text-lg">Select Camper</label>
-              <div className="relative">
-                <select 
-                  value={selectedCamper}
-                  onChange={(e) => setSelectedCamper(e.target.value)}
-                  disabled={submitting || result?.success}
-                  className="w-full appearance-none bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {campers.map(camper => (
-                    <option key={camper.id} value={camper.id}>
-                      {camper.full_name} ({camper.age_category})
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
-                  ▼
-                </div>
+              <label className="font-headline font-bold text-on-surface text-lg">Selected Camper</label>
+              <div className="bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface font-semibold">
+                {lockedCamper ? `${lockedCamper.full_name} (${lockedCamper.age_category})` : 'Selected Camper'}
               </div>
             </div>
 
@@ -133,7 +153,7 @@ export function RegistrationForm() {
             <motion.button
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              disabled={submitting || result?.success}
+              disabled={submitting || result?.success || mustSelectFromCatalog}
               className={`w-full py-4 rounded-2xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2 rough-edge ${
                 result?.success 
                   ? 'bg-green-600 shadow-green-600/30' 

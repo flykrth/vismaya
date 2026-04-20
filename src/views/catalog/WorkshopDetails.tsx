@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { WorkshopDetailsSkeleton } from './WorkshopDetailsSkeleton';
 import { toast } from 'sonner';
 
-export function WorkshopDetails({ workshopId }: { workshopId: string }) {
+export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: string; selectedCamperId?: string }) {
   const router = useRouter();
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -213,7 +213,9 @@ export function WorkshopDetails({ workshopId }: { workshopId: string }) {
                       </div>
 
                       <Link 
-                        href={`/register?scheduleId=${schedule.id}&workshopTitle=${encodeURIComponent(workshop.title)}`}
+                        href={selectedCamperId
+                          ? `/register?scheduleId=${schedule.id}&workshopTitle=${encodeURIComponent(workshop.title)}&camperId=${selectedCamperId}`
+                          : `/register?scheduleId=${schedule.id}&workshopTitle=${encodeURIComponent(workshop.title)}`}
                         className={`block text-center py-3 rounded-xl font-bold transition-all relative z-10 ${
                           isFull 
                             ? 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80' 
