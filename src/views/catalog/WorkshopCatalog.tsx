@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Users } from 'lucide-react';
+import { CalendarRange, Target, Users } from 'lucide-react';
 import { Camper, Workshop } from '@/models/supabaseClient';
 import { supabase } from '@/models/supabaseClient';
 import { fetchCatalog } from '@/controllers/catalogController';
@@ -101,9 +101,9 @@ export function WorkshopCatalog() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center max-w-3xl mx-auto mb-16"
       >
-        <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Discover Our Expeditions</h1>
+        <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Register now</h1>
         <p className="font-body text-xl text-on-surface-variant leading-relaxed">
-          From wilderness survival to mindful artistry, find the perfect journey for your camper&apos;s spirit.
+          Don't miss the golden opportunity to make your summer meaningful. Spaces are limited!
         </p>
       </motion.div>
 
@@ -150,7 +150,7 @@ export function WorkshopCatalog() {
         <>
           <div className="mb-8">
             <span className="inline-flex px-4 py-2 bg-primary/10 text-primary rounded-xl font-bold border border-primary/20">
-              Showing workshops for {selectedCamper?.full_name} ({selectedCamper?.age_category}, {selectedCamper?.gender.replaceAll('_', ' ')})
+              Showing workshops for {selectedCamper?.full_name}
             </span>
           </div>
 
@@ -180,14 +180,7 @@ export function WorkshopCatalog() {
                     <div className="flex-grow">
                       <div className="flex items-start justify-between mb-4">
                         <div className="w-14 h-14 bg-primary-container/20 text-primary rounded-2xl flex items-center justify-center border border-dashed border-primary/40">
-                          <Compass size={28} />
-                        </div>
-                        <div className="flex gap-2 flex-wrap justify-end max-w-[50%]">
-                          {workshop.allowed_age_categories.map((age) => (
-                            <span key={age} className="text-xs font-bold bg-secondary-container/20 text-secondary px-3 py-1 rounded-full border border-secondary/20">
-                              {age}
-                            </span>
-                          ))}
+                          <Target size={28} />
                         </div>
                       </div>
 
@@ -206,7 +199,7 @@ export function WorkshopCatalog() {
                         href={workshop.id ? `/catalog/${workshop.id}?camperId=${selectedCamperId}` : '#'} 
                         className="w-full flex items-center justify-center gap-2 bg-surface-container-low text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-sm"
                       >
-                        View Details & Schedules <Compass size={18} />
+                        View details & schedules <CalendarRange size={18} />
                       </Link>
                     </div>
                   </motion.div>
