@@ -15,6 +15,7 @@ export function ParentDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [adding, setAdding] = useState(false);
   const [cancellingRegistrationId, setCancellingRegistrationId] = useState<string | null>(null);
+  const [cancelPassword, setCancelPassword] = useState('');
   const [addResult, setAddResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const loadDashboardData = useCallback(async () => {
@@ -75,9 +76,14 @@ export function ParentDashboard() {
   };
 
   const handleCancelRegistration = async (registrationId: string) => {
+    if (!cancelPassword.trim()) {
+      toast.error('Enter your account password before cancelling a registration.');
+      return;
+    }
+
     setCancellingRegistrationId(registrationId);
 
-    const result = await cancelRegistration(registrationId);
+    const result = await cancelRegistration(registrationId, cancelPassword);
 
     if (!result.success) {
       toast.error(result.message || 'Unable to cancel registration.');
@@ -199,10 +205,24 @@ export function ParentDashboard() {
           </div>
         ) : (
           <div className="space-y-4">
+            <div className="bg-surface-container-low border border-surface-variant rounded-2xl p-4">
+              <label htmlFor="cancel-password" className="block font-body font-bold text-on-surface text-sm mb-2">
+                Confirm with account password before cancellation
+              </label>
+              <input
+                id="cancel-password"
+                type="password"
+                value={cancelPassword}
+                onChange={(e) => setCancelPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                className="w-full md:max-w-md bg-surface-container-lowest border-2 border-surface-variant rounded-xl px-4 py-3 font-body text-on-surface focus:outline-none focus:border-primary transition-all"
+              />
+            </div>
+
             {registrations.map((registration) => {
               const startTime = new Date(registration.schedule.start_time);
               const endTime = new Date(registration.schedule.end_time);
-              const remainingSpots = Math.max(registration.schedule.max_capacity - registration.schedule.current_enrollment, 0);
 
               return (
                 <motion.div
@@ -238,7 +258,7 @@ export function ParentDashboard() {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => handleCancelRegistration(registration.id)}
-                      disabled={cancellingRegistrationId === registration.id}
+                      disabled={cancellingRegistrationId === registration.id || !cancelPassword.trim()}
                       className="h-fit w-full md:w-auto bg-red-500 text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {cancellingRegistrationId === registration.id ? (

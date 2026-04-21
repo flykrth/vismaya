@@ -3,6 +3,7 @@
 import { createClient } from '../models/supabaseServer';
 import { Camper } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
+import { verifyCurrentUserPassword } from './authController';
 
 export async function fetchMyCampers(): Promise<Camper[]> {
   const supabase = await createClient();
@@ -21,10 +22,15 @@ export async function fetchMyCampers(): Promise<Camper[]> {
   return data || [];
 }
 
-export async function submitRegistration(camperId: string, scheduleId: string) {
+export async function submitRegistration(camperId: string, scheduleId: string, password: string) {
   const supabase = await createClient();
 
   try {
+    const passwordCheck = await verifyCurrentUserPassword(password);
+    if (!passwordCheck.valid) {
+      return { success: false, message: passwordCheck.message || 'Password verification failed.' };
+    }
+
     const { data: selectedSchedule, error: selectedScheduleError } = await supabase
       .from('schedules')
       .select('id, workshop_id')

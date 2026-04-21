@@ -3,6 +3,7 @@
 import { createClient } from '../models/supabaseServer';
 import { Camper, RegistrationWithDetails } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
+import { verifyCurrentUserPassword } from './authController';
 
 export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error?: string }> {
   const supabase = await createClient();
@@ -184,8 +185,13 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
   return { registrations };
 }
 
-export async function cancelRegistration(registrationId: string) {
+export async function cancelRegistration(registrationId: string, password: string) {
   const supabase = await createClient();
+
+  const passwordCheck = await verifyCurrentUserPassword(password);
+  if (!passwordCheck.valid) {
+    return { success: false, message: passwordCheck.message || 'Password verification failed.' };
+  }
 
   const { error } = await supabase
     .from('registrations')

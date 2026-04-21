@@ -57,3 +57,30 @@ export async function logout() {
   await supabase.auth.signOut();
   redirect('/login');
 }
+
+export async function verifyCurrentUserPassword(password: string): Promise<{ valid: boolean; message?: string }> {
+  if (!password) {
+    return { valid: false, message: 'Password is required.' };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user?.email) {
+    return { valid: false, message: 'You must be logged in to continue.' };
+  }
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password,
+  });
+
+  if (signInError) {
+    return { valid: false, message: 'Password does not match your account.' };
+  }
+
+  return { valid: true };
+}
