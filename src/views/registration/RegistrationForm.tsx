@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, AlertCircle, Loader2, LockOpen } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, ClockCheck } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { fetchMyCampers, submitRegistration } from '@/controllers/registrationController';
 import { Camper } from '@/models/supabaseClient';
@@ -96,9 +96,9 @@ export function RegistrationForm() {
 
         <div className="text-center mb-8 pt-4">
           <div className="w-16 h-16 bg-primary-container/20 text-primary rounded-3xl flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-primary/30">
-            <LockOpen size={32} />
+            <ClockCheck size={32} />
           </div>
-          <h2 className="font-headline text-3xl font-extrabold text-on-surface">Secure Your Spot</h2>
+          <h2 className="font-headline text-3xl font-extrabold text-on-surface">Secure your spot</h2>
           <p className="font-body text-on-surface-variant mt-2">Registering for: <strong className="text-primary">{workshopTitle}</strong></p>
         </div>
 
