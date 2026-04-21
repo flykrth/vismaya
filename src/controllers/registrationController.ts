@@ -1,34 +1,66 @@
 'use server';
 
 import { createClient } from '../models/supabaseServer';
+import { createServiceClient } from '../models/supabaseService';
 import { Camper } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
-import { verifyCurrentUserPassword } from './authController';
 
-export async function fetchMyCampers(): Promise<Camper[]> {
+export async function fetchMyCampers(camperId?: string): Promise<Camper[]> {
   const supabase = await createClient();
-  
-  // Securely fetches only campers belonging to the authenticated parent
-  const { data, error } = await supabase
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data, error } = await supabase
+      .from('campers')
+      .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching campers:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  if (!camperId) {
+    return [];
+  }
+
+  const serviceSupabase = createServiceClient();
+  const { data, error } = await serviceSupabase
     .from('campers')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
+    .eq('id', camperId)
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching campers:', error);
     return [];
   }
-  
-  return data || [];
+
+  return data ? [data] : [];
 }
 
-export async function submitRegistration(camperId: string, scheduleId: string, password: string) {
-  const supabase = await createClient();
+export async function submitRegistration(camperId: string, scheduleId: string) {
+  const supabase = createServiceClient();
 
   try {
-    const passwordCheck = await verifyCurrentUserPassword(password);
-    if (!passwordCheck.valid) {
-      return { success: false, message: passwordCheck.message || 'Password verification failed.' };
+    if (!camperId || !scheduleId) {
+      return { success: false, message: 'Camper and schedule are required.' };
+    }
+
+    const { data: camper, error: camperError } = await supabase
+      .from('campers')
+      .select('id')
+      .eq('id', camperId)
+      .single();
+
+    if (camperError || !camper) {
+      return { success: false, message: 'Invalid camper selected.' };
     }
 
     const { data: selectedSchedule, error: selectedScheduleError } = await supabase
@@ -66,7 +98,8 @@ export async function submitRegistration(camperId: string, scheduleId: string, p
           schedule_id: scheduleId,
         }
       ])
-      .select();
+      .select('id, camper_id, schedule_id, status, created_at')
+      .single();
 
     if (error) {
       // Return the error message directly from the PostgreSQL trigger
@@ -76,7 +109,7 @@ export async function submitRegistration(camperId: string, scheduleId: string, p
     revalidatePath('/dashboard');
     revalidatePath('/catalog');
 
-    return { success: true, message: 'Successfully registered!', data: data[0] };
+    return { success: true, message: 'Successfully registered!', data };
   } catch (err: unknown) {
     return {
       success: false,

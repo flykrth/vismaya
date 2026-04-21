@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarRange, Target, Users } from 'lucide-react';
 import { Camper, Workshop } from '@/models/supabaseClient';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 export function WorkshopCatalog() {
   const router = useRouter();
+  const isMountedRef = useRef(true);
   const searchParams = useSearchParams();
   const queryString = searchParams?.toString() || '';
   const initialCamperId = searchParams?.get('camperId') || '';
@@ -25,13 +26,21 @@ export function WorkshopCatalog() {
 
   const loadCatalog = useCallback(async () => {
     const data = await fetchCatalog();
+    if (!isMountedRef.current) {
+      return;
+    }
+
     setWorkshops(data);
     setLoading(false);
   }, []);
 
   const loadCampers = useCallback(async () => {
     try {
-      const data = await fetchMyCampers();
+      const data = await fetchMyCampers(initialCamperId || undefined);
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setCampers(data);
 
       if (data.length === 1) {
@@ -52,12 +61,24 @@ export function WorkshopCatalog() {
         setSelectedCamperId('');
       }
     } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
+
       toast.error('Unable to load campers for catalog filtering.');
       console.error('Error loading campers for catalog:', error);
     } finally {
-      setCampersLoading(false);
+      if (isMountedRef.current) {
+        setCampersLoading(false);
+      }
     }
   }, [initialCamperId, queryString, router]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     queueMicrotask(() => {

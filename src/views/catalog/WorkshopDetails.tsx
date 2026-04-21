@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Workshop, Schedule, supabase } from '@/models/supabaseClient';
+import { Workshop, Schedule } from '@/models/supabaseClient';
 import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/catalogController';
 import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, NotepadText } from 'lucide-react';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: string; selectedCamperId?: string }) {
   const router = useRouter();
+  const isMountedRef = useRef(true);
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const hasValidWorkshopId = Boolean(workshopId && workshopId !== 'undefined');
@@ -22,11 +23,20 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
       return;
     }
 
+    if (isMountedRef.current) {
+      setLoading(true);
+    }
+
     try {
       const [workshopData, scheduleData] = await Promise.all([
         fetchWorkshopById(workshopId),
         fetchSchedulesForWorkshop(workshopId)
       ]);
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setWorkshop(workshopData);
       setSchedules(scheduleData);
 
@@ -34,12 +44,24 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
         toast.error('Workshop not found');
       }
     } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
+
       toast.error('Failed to load workshop details');
       console.error('Error loading workshop:', error);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [hasValidWorkshopId, workshopId]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!hasValidWorkshopId) {
@@ -49,17 +71,6 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
     queueMicrotask(() => {
       void loadData();
     });
-
-    const channel = supabase
-      .channel(`workshop-details-live-${workshopId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules', filter: `workshop_id=eq.${workshopId}` }, () => {
-        loadData();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [workshopId, hasValidWorkshopId, loadData]);
 
   if (hasValidWorkshopId && loading) {

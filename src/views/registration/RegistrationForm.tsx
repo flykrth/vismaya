@@ -25,13 +25,18 @@ export function RegistrationForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const [password, setPassword] = useState('');
   const [result, setResult] = useState<{ success: boolean; message: string; data?: unknown } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadCampers() {
       try {
-        const data = await fetchMyCampers();
+        const data = await fetchMyCampers(selectedCamperFromCatalog || undefined);
+        if (!isMounted) {
+          return;
+        }
+
         setCampers(data);
 
         if (data.length === 0) {
@@ -57,24 +62,29 @@ export function RegistrationForm() {
 
         setMustSelectFromCatalog(true);
       } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
         toast.error('Failed to load your campers');
         console.error('Error loading campers:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
     loadCampers();
+
+    return () => {
+      isMounted = false;
+    };
   }, [selectedCamperFromCatalog]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (submittingRef.current || !selectedCamper || !scheduleId || mustSelectFromCatalog) {
-      return;
-    }
-
-    if (!password.trim()) {
-      toast.error('Please enter your account password to confirm registration.');
       return;
     }
 
@@ -95,7 +105,7 @@ export function RegistrationForm() {
     setResult(null);
 
     try {
-      const res = await submitRegistration(selectedCamper, scheduleId, password);
+      const res = await submitRegistration(selectedCamper, scheduleId);
       setResult(res);
 
       if (res.success) {
@@ -160,20 +170,6 @@ export function RegistrationForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="registration-password" className="font-headline font-bold text-on-surface text-lg">Account password</label>
-              <input
-                id="registration-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                placeholder="Enter password to confirm"
-                className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface font-semibold focus:outline-none focus:border-primary transition-all"
-              />
-              <p className="text-xs text-on-surface-variant">Required to authorize registration for your camper.</p>
-            </div>
-
             <AnimatePresence mode="wait">
               {result && (
                 <motion.div
@@ -197,7 +193,7 @@ export function RegistrationForm() {
             <motion.button
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              disabled={submitting || result?.success || mustSelectFromCatalog || !password.trim()}
+              disabled={submitting || result?.success || mustSelectFromCatalog}
               className={`w-full py-4 rounded-2xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2 rough-edge ${
                 result?.success 
                   ? 'bg-green-600 shadow-green-600/30' 
