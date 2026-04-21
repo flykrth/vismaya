@@ -3,12 +3,11 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.parents (id, full_name, phone_number, emergency_contact)
+  INSERT INTO public.parents (id, full_name, phone_number)
   VALUES (
     NEW.id,
     NEW.raw_user_meta_data->>'full_name',
-    NEW.raw_user_meta_data->>'phone_number',
-    NEW.raw_user_meta_data->>'emergency_contact'
+    NEW.raw_user_meta_data->>'phone_number'
   );
   RETURN NEW;
 END;
