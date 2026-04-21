@@ -9,7 +9,7 @@ export async function fetchCatalog(): Promise<Workshop[]> {
   // Fetch workshops
   const { data: workshops, error: workshopError } = await supabase
     .from('workshops')
-    .select('*')
+    .select('id, title, description, speaker_name, speaker_title, learning_outcome, allowed_age_categories, created_at')
     .order('created_at', { ascending: false });
 
   if (workshopError) {
@@ -20,7 +20,7 @@ export async function fetchCatalog(): Promise<Workshop[]> {
   // Fetch schedules
   const { data: schedules, error: scheduleError } = await supabase
     .from('schedules')
-    .select('*')
+    .select('id, workshop_id, start_time, end_time, venue, max_capacity, current_enrollment, created_at')
     .order('start_time', { ascending: true });
 
   if (scheduleError) {
@@ -44,7 +44,7 @@ export async function fetchWorkshopById(id: string): Promise<Workshop | null> {
 
   const { data, error } = await supabase
     .from('workshops')
-    .select('*')
+    .select('id, title, description, speaker_name, speaker_title, learning_outcome, allowed_age_categories, created_at')
     .eq('id', id)
     .single();
 
@@ -61,7 +61,7 @@ export async function fetchSchedulesForWorkshop(workshopId: string): Promise<Sch
 
   const { data, error } = await supabase
     .from('schedules')
-    .select('*')
+    .select('id, workshop_id, start_time, end_time, venue, max_capacity, current_enrollment, created_at')
     .eq('workshop_id', workshopId)
     .order('start_time', { ascending: true });
 

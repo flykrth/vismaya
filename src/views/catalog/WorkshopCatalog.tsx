@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarRange, Target, Users } from 'lucide-react';
 import { Camper, Workshop } from '@/models/supabaseClient';
-import { supabase } from '@/models/supabaseClient';
 import { fetchCatalog } from '@/controllers/catalogController';
 import { fetchMyCampers } from '@/controllers/registrationController';
 import Link from 'next/link';
@@ -65,17 +64,6 @@ export function WorkshopCatalog() {
       void loadCatalog();
       void loadCampers();
     });
-
-    const channel = supabase
-      .channel('catalog-live-schedules')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, () => {
-        loadCatalog();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [loadCatalog, loadCampers]);
 
   const handleCamperSelection = (camperId: string) => {
@@ -103,7 +91,7 @@ export function WorkshopCatalog() {
       >
         <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Register now</h1>
         <p className="font-body text-xl text-on-surface-variant leading-relaxed">
-          Don't miss the golden opportunity to make your summer meaningful. Spaces are limited!
+          Don&apos;t miss the golden opportunity to make your summer meaningful. Spaces are limited!
         </p>
       </motion.div>
 

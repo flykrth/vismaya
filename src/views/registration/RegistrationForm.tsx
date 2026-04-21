@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, Loader2, ClockCheck } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -10,6 +10,9 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 export function RegistrationForm() {
+  const REGISTRATION_RATE_LIMIT_KEY = 'vismaya:registration:lastAttemptAt';
+  const REGISTRATION_COOLDOWN_MS = 4000;
+
   const searchParams = useSearchParams();
   const scheduleId = searchParams?.get('scheduleId') || '';
   const workshopTitle = searchParams?.get('workshopTitle') || 'Selected Workshop';
@@ -21,6 +24,7 @@ export function RegistrationForm() {
   const [mustSelectFromCatalog, setMustSelectFromCatalog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [result, setResult] = useState<{ success: boolean; message: string; data?: unknown } | null>(null);
 
   useEffect(() => {
@@ -63,19 +67,39 @@ export function RegistrationForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCamper || !scheduleId || mustSelectFromCatalog) return;
+
+    if (submittingRef.current || !selectedCamper || !scheduleId || mustSelectFromCatalog) {
+      return;
+    }
+
+    const now = Date.now();
+    const lastAttemptRaw = localStorage.getItem(REGISTRATION_RATE_LIMIT_KEY);
+    const lastAttempt = lastAttemptRaw ? Number(lastAttemptRaw) : 0;
+
+    if (lastAttempt && now - lastAttempt < REGISTRATION_COOLDOWN_MS) {
+      const waitSeconds = Math.ceil((REGISTRATION_COOLDOWN_MS - (now - lastAttempt)) / 1000);
+      toast.error(`Please wait ${waitSeconds}s before trying again.`);
+      return;
+    }
+
+    localStorage.setItem(REGISTRATION_RATE_LIMIT_KEY, String(now));
+    submittingRef.current = true;
 
     setSubmitting(true);
     setResult(null);
 
-    const res = await submitRegistration(selectedCamper, scheduleId);
-    setResult(res);
-    setSubmitting(false);
-    
-    if (res.success) {
-      toast.success(res.message || 'Successfully registered!');
-    } else {
-      toast.error(res.message || 'Failed to register.');
+    try {
+      const res = await submitRegistration(selectedCamper, scheduleId);
+      setResult(res);
+
+      if (res.success) {
+        toast.success(res.message || 'Successfully registered!');
+      } else {
+        toast.error(res.message || 'Failed to register.');
+      }
+    } finally {
+      setSubmitting(false);
+      submittingRef.current = false;
     }
   };
 
