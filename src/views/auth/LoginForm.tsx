@@ -97,15 +97,27 @@ export function LoginForm() {
                       className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
                     />
                   </div>
-                  <div>
-                    <label className="block font-body font-bold text-on-surface text-sm mb-2">Phone</label>
-                    <input 
-                      required={!isLogin}
-                      name="phone_number"
-                      type="tel" 
-                      placeholder="9192939495"
-                      className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-body font-bold text-on-surface text-sm mb-2">Phone</label>
+                      <input 
+                        required={!isLogin}
+                        name="phone_number"
+                        type="tel" 
+                        placeholder="9192939495"
+                        className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-body font-bold text-on-surface text-sm mb-2">Emergency contact</label>
+                      <input 
+                        required={!isLogin}
+                        name="emergency_contact"
+                        type="tel" 
+                        placeholder="9697989990"
+                        className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all font-semibold placeholder:text-on-surface-variant/50"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}

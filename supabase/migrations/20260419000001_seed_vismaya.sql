@@ -9,8 +9,8 @@
 
 ALTER TABLE parents DROP CONSTRAINT parents_id_fkey;
 
-INSERT INTO parents (id, full_name, phone_number) VALUES
-('11111111-1111-1111-1111-111111111111', 'Mock Parent (Tester)', '555-0100')
+INSERT INTO parents (id, full_name, phone_number, emergency_contact) VALUES
+('11111111-1111-1111-1111-111111111111', 'Mock Parent (Tester)', '555-0100', '555-0199')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Create Mock Campers for the Mock Parent

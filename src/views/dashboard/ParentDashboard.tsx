@@ -343,12 +343,13 @@ export function ParentDashboard() {
                   <select
                     required
                     name="gender"
-                    defaultValue="male"
+                    defaultValue="prefer_not_to_say"
                     className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-5 py-3 font-body text-on-surface focus:outline-none focus:border-primary transition-all font-semibold"
                   >
-                    <option value="male">Male</option>
                     <option value="female">Female</option>
-                    <option value="other">Others</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
                   </select>
                 </div>
 

@@ -27,6 +27,7 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string;
   const fullName = formData.get('full_name') as string;
   const phoneNumber = formData.get('phone_number') as string;
+  const emergencyContact = formData.get('emergency_contact') as string;
 
   const supabase = await createClient();
 
@@ -37,6 +38,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: fullName,
         phone_number: phoneNumber,
+        emergency_contact: emergencyContact,
       },
     },
   });

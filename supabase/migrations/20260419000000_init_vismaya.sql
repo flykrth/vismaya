@@ -10,6 +10,7 @@ CREATE TABLE parents (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
+    emergency_contact TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
