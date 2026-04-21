@@ -36,7 +36,7 @@ export function WorkshopCatalog() {
 
   const loadCampers = useCallback(async () => {
     try {
-      const data = await fetchMyCampers(initialCamperId || undefined);
+      const data = await fetchMyCampers();
       if (!isMountedRef.current) {
         return;
       }

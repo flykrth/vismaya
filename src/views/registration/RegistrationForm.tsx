@@ -25,6 +25,7 @@ export function RegistrationForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const [password, setPassword] = useState('');
   const [result, setResult] = useState<{ success: boolean; message: string; data?: unknown } | null>(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export function RegistrationForm() {
 
     async function loadCampers() {
       try {
-        const data = await fetchMyCampers(selectedCamperFromCatalog || undefined);
+        const data = await fetchMyCampers();
         if (!isMounted) {
           return;
         }
@@ -88,6 +89,11 @@ export function RegistrationForm() {
       return;
     }
 
+    if (!password.trim()) {
+      toast.error('Please enter your account password to confirm registration.');
+      return;
+    }
+
     const now = Date.now();
     const lastAttemptRaw = localStorage.getItem(REGISTRATION_RATE_LIMIT_KEY);
     const lastAttempt = lastAttemptRaw ? Number(lastAttemptRaw) : 0;
@@ -105,7 +111,7 @@ export function RegistrationForm() {
     setResult(null);
 
     try {
-      const res = await submitRegistration(selectedCamper, scheduleId);
+      const res = await submitRegistration(selectedCamper, scheduleId, password);
       setResult(res);
 
       if (res.success) {
@@ -170,6 +176,20 @@ export function RegistrationForm() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <label htmlFor="registration-password" className="font-headline font-bold text-on-surface text-lg">Account password</label>
+              <input
+                id="registration-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter password to confirm"
+                className="w-full bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface font-semibold focus:outline-none focus:border-primary transition-all"
+              />
+              <p className="text-xs text-on-surface-variant">Required to authorize registration for your camper.</p>
+            </div>
+
             <AnimatePresence mode="wait">
               {result && (
                 <motion.div
@@ -193,7 +213,7 @@ export function RegistrationForm() {
             <motion.button
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              disabled={submitting || result?.success || mustSelectFromCatalog}
+              disabled={submitting || result?.success || mustSelectFromCatalog || !password.trim()}
               className={`w-full py-4 rounded-2xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2 rough-edge ${
                 result?.success 
                   ? 'bg-green-600 shadow-green-600/30' 

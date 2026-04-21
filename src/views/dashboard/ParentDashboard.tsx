@@ -6,12 +6,9 @@ import { Camper, RegistrationWithDetails } from '@/models/supabaseClient';
 import { fetchMySecureCampers, addCamper, fetchMyRegistrations, cancelRegistration } from '@/controllers/dashboardController';
 import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent, BookOpen, Clock, MapPin, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 export function ParentDashboard() {
-  const searchParams = useSearchParams();
-  const camperIdFromQuery = searchParams?.get('camperId') || '';
   const isMountedRef = useRef(true);
   const closeModalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -21,13 +18,11 @@ export function ParentDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [adding, setAdding] = useState(false);
   const [cancellingRegistrationId, setCancellingRegistrationId] = useState<string | null>(null);
+  const [cancelPassword, setCancelPassword] = useState('');
   const [addResult, setAddResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const loadDashboardData = useCallback(async () => {
-    const [camperResult, registrationResult] = await Promise.all([
-      camperIdFromQuery ? Promise.resolve({ campers: [] as Camper[] }) : fetchMySecureCampers(),
-      fetchMyRegistrations(camperIdFromQuery || undefined),
-    ]);
+    const [camperResult, registrationResult] = await Promise.all([fetchMySecureCampers(), fetchMyRegistrations()]);
 
     if (!isMountedRef.current) {
       return;
@@ -40,7 +35,7 @@ export function ParentDashboard() {
     }
 
     setLoading(false);
-  }, [camperIdFromQuery]);
+  }, []);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -88,8 +83,13 @@ export function ParentDashboard() {
     }
   };
 
-  const handleCancelRegistration = async (registrationId: string, camperId: string) => {
+  const handleCancelRegistration = async (registrationId: string) => {
     if (cancellingRegistrationId) {
+      return;
+    }
+
+    if (!cancelPassword.trim()) {
+      toast.error('Enter your account password before cancelling a registration.');
       return;
     }
 
@@ -97,7 +97,7 @@ export function ParentDashboard() {
     setCancellingRegistrationId(registrationId);
     setRegistrations((prev) => prev.filter((registration) => registration.id !== registrationId));
 
-    const result = await cancelRegistration(registrationId, camperId);
+    const result = await cancelRegistration(registrationId, cancelPassword);
 
     if (!result.success) {
       if (isMountedRef.current) {
@@ -221,6 +221,21 @@ export function ParentDashboard() {
           </div>
         ) : (
           <div className="space-y-4">
+            <div className="bg-surface-container-low border border-surface-variant rounded-2xl p-4">
+              <label htmlFor="cancel-password" className="block font-body font-bold text-on-surface text-sm mb-2">
+                Confirm with account password before cancellation
+              </label>
+              <input
+                id="cancel-password"
+                type="password"
+                value={cancelPassword}
+                onChange={(e) => setCancelPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                className="w-full md:max-w-md bg-surface-container-lowest border-2 border-surface-variant rounded-xl px-4 py-3 font-body text-on-surface focus:outline-none focus:border-primary transition-all"
+              />
+            </div>
+
             {registrations.map((registration) => {
               const startTime = new Date(registration.schedule.start_time);
               const endTime = new Date(registration.schedule.end_time);
@@ -258,8 +273,8 @@ export function ParentDashboard() {
                     <motion.button
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => handleCancelRegistration(registration.id, registration.camper.id)}
-                      disabled={Boolean(cancellingRegistrationId)}
+                      onClick={() => handleCancelRegistration(registration.id)}
+                      disabled={Boolean(cancellingRegistrationId) || !cancelPassword.trim()}
                       className="h-fit w-full md:w-auto bg-red-500 text-white px-6 py-3 rounded-2xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {cancellingRegistrationId === registration.id ? (

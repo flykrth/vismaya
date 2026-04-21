@@ -1,9 +1,9 @@
 'use server';
 
 import { createClient } from '../models/supabaseServer';
-import { createServiceClient } from '../models/supabaseService';
 import { Camper, RegistrationWithDetails } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
+import { verifyCurrentUserPassword } from './authController';
 
 export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error?: string }> {
   const supabase = await createClient();
@@ -58,8 +58,8 @@ export async function addCamper(formData: FormData) {
   return { success: true, message: 'Camper successfully added!' };
 }
 
-export async function fetchMyRegistrations(camperId?: string): Promise<{ registrations: RegistrationWithDetails[], error?: string }> {
-  const supabase = camperId ? createServiceClient() : await createClient();
+export async function fetchMyRegistrations(): Promise<{ registrations: RegistrationWithDetails[], error?: string }> {
+  const supabase = await createClient();
 
   type DashboardRegistrationRow = {
     id: string;
@@ -95,7 +95,7 @@ export async function fetchMyRegistrations(camperId?: string): Promise<{ registr
     }[];
   };
 
-  let registrationQuery = supabase
+  const registrationQuery = supabase
     .from('registrations')
     .select(`
       id,
@@ -108,10 +108,6 @@ export async function fetchMyRegistrations(camperId?: string): Promise<{ registr
     `)
     .neq('status', 'cancelled')
     .order('created_at', { ascending: false });
-
-  if (camperId) {
-    registrationQuery = registrationQuery.eq('camper_id', camperId);
-  }
 
   const { data, error } = await registrationQuery;
 
@@ -191,29 +187,22 @@ export async function fetchMyRegistrations(camperId?: string): Promise<{ registr
   return { registrations };
 }
 
-export async function cancelRegistration(registrationId: string, camperId: string) {
-  const supabase = createServiceClient();
+export async function cancelRegistration(registrationId: string, password: string) {
+  const supabase = await createClient();
 
-  if (!registrationId || !camperId) {
-    return { success: false, message: 'Registration and camper are required.' };
+  const passwordCheck = await verifyCurrentUserPassword(password);
+  if (!passwordCheck.valid) {
+    return { success: false, message: passwordCheck.message || 'Password verification failed.' };
   }
 
-  const { data: existingRegistration, error: existingRegistrationError } = await supabase
-    .from('registrations')
-    .select('id')
-    .eq('id', registrationId)
-    .eq('camper_id', camperId)
-    .maybeSingle();
-
-  if (existingRegistrationError || !existingRegistration) {
-    return { success: false, message: 'Registration not found for this camper.' };
+  if (!registrationId) {
+    return { success: false, message: 'Registration id is required.' };
   }
 
   const { error } = await supabase
     .from('registrations')
     .delete()
-    .eq('id', registrationId)
-    .eq('camper_id', camperId);
+    .eq('id', registrationId);
 
   if (error) {
     return { success: false, message: error.message };

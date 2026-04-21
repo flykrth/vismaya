@@ -1,54 +1,35 @@
 'use server';
 
 import { createClient } from '../models/supabaseServer';
-import { createServiceClient } from '../models/supabaseService';
 import { Camper } from '../models/supabaseClient';
 import { revalidatePath } from 'next/cache';
+import { verifyCurrentUserPassword } from './authController';
 
-export async function fetchMyCampers(camperId?: string): Promise<Camper[]> {
+export async function fetchMyCampers(): Promise<Camper[]> {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    const { data, error } = await supabase
-      .from('campers')
-      .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching campers:', error);
-      return [];
-    }
-
-    return data || [];
-  }
-
-  if (!camperId) {
-    return [];
-  }
-
-  const serviceSupabase = createServiceClient();
-  const { data, error } = await serviceSupabase
+  const { data, error } = await supabase
     .from('campers')
     .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
-    .eq('id', camperId)
-    .maybeSingle();
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching campers:', error);
     return [];
   }
 
-  return data ? [data] : [];
+  return data || [];
 }
 
-export async function submitRegistration(camperId: string, scheduleId: string) {
-  const supabase = createServiceClient();
+export async function submitRegistration(camperId: string, scheduleId: string, password: string) {
+  const supabase = await createClient();
 
   try {
+    const passwordCheck = await verifyCurrentUserPassword(password);
+    if (!passwordCheck.valid) {
+      return { success: false, message: passwordCheck.message || 'Password verification failed.' };
+    }
+
     if (!camperId || !scheduleId) {
       return { success: false, message: 'Camper and schedule are required.' };
     }
