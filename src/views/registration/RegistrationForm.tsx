@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, AlertCircle, Compass, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, LockOpen } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { fetchMyCampers, submitRegistration } from '@/controllers/registrationController';
 import { Camper } from '@/models/supabaseClient';
@@ -96,7 +96,7 @@ export function RegistrationForm() {
 
         <div className="text-center mb-8 pt-4">
           <div className="w-16 h-16 bg-primary-container/20 text-primary rounded-3xl flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-primary/30">
-            <Compass size={32} />
+            <LockOpen size={32} />
           </div>
           <h2 className="font-headline text-3xl font-extrabold text-on-surface">Secure Your Spot</h2>
           <p className="font-body text-on-surface-variant mt-2">Registering for: <strong className="text-primary">{workshopTitle}</strong></p>
@@ -115,18 +115,18 @@ export function RegistrationForm() {
         ) : mustSelectFromCatalog ? (
           <div className="text-center p-6 bg-error-container/20 rounded-2xl border border-error/20">
             <AlertCircle className="w-8 h-8 text-error mx-auto mb-2" />
-            <p className="text-error font-bold font-body">Please choose a camper from catalog first.</p>
+            <p className="text-error font-bold font-body">Please choose a camper from profile first.</p>
             <p className="text-sm text-error/80 mt-1">This registration is linked to one selected camper only.</p>
             <Link href="/catalog" className="mt-4 inline-block bg-primary text-white px-5 py-2 rounded-xl font-bold">
-              Choose Camper in Catalog
+              Choose Camper in profile
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="font-headline font-bold text-on-surface text-lg">Selected Camper</label>
+              <label className="font-headline font-bold text-on-surface text-lg">Selected camper</label>
               <div className="bg-surface-container-lowest border-2 border-surface-variant rounded-2xl px-6 py-4 font-body text-on-surface font-semibold">
-                {lockedCamper ? `${lockedCamper.full_name} (${lockedCamper.age_category}, ${lockedCamper.gender.replaceAll('_', ' ')})` : 'Selected Camper'}
+                {lockedCamper ? `${lockedCamper.full_name}` : 'Selected camper'}
               </div>
             </div>
 
