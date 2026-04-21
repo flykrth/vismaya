@@ -17,6 +17,9 @@ export interface Workshop {
   id: string;
   title: string;
   description: string;
+  speaker_name: string;
+  speaker_title: string;
+  learning_outcome: string;
   allowed_age_categories: AgeCategory[];
   created_at: string;
   schedules?: Schedule[];

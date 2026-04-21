@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Workshop, Schedule, supabase } from '@/models/supabaseClient';
 import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/catalogController';
-import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, Camera } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, NotepadText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { WorkshopDetailsSkeleton } from './WorkshopDetailsSkeleton';
@@ -82,7 +82,7 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
         onClick={() => router.back()}
         className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-bold mb-8 group"
       >
-        <ArrowLeft className="group-hover:-translate-x-1 transition-transform" /> Back to Adventures
+        <ArrowLeft className="group-hover:-translate-x-1 transition-transform" /> Back to Workshops
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -90,17 +90,6 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
         <div className="lg:col-span-2 space-y-12">
           
           <div>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex gap-2 mb-4"
-            >
-              {workshop.allowed_age_categories.map(cat => (
-                <span key={cat} className="px-4 py-1.5 bg-primary/10 text-primary font-bold text-sm rounded-full border border-primary/20 capitalize">
-                  {cat}
-                </span>
-              ))}
-            </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -118,35 +107,20 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
             className="prose prose-lg prose-headings:font-headline prose-a:text-primary max-w-none text-on-surface-variant font-body"
           >
             <h2 className="text-2xl font-bold text-on-surface flex items-center gap-2 border-b-2 border-surface-variant pb-2 inline-flex">
-              <Camera className="text-primary" /> The Journey
+              <NotepadText className="text-primary" /> Details
             </h2>
             <p className="mt-4 text-lg leading-relaxed">
-              {workshop.description || "Dive deep into the art of narrative. This workshop is designed to help you weave compelling stories. Discover the rhythm of your own voice and learn to share it with clarity and warmth."}
+              {workshop.description || "No description provided for this workshop."}
             </p>
 
             <div className="mt-12 bg-surface-container-low p-8 rounded-[2rem] border border-surface-variant rough-edge relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[100px] pointer-events-none"></div>
               <h2 className="text-2xl font-bold text-on-surface flex items-center gap-2 mb-6 mt-0">
-                <BookOpen className="text-secondary" /> What You&apos;ll Learn
+                <BookOpen className="text-secondary" /> What you&apos;ll learn
               </h2>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-bold text-on-surface m-0 text-lg">Narrative Structure</h3>
-                  <p className="text-sm mt-1 mb-0">Build the foundation of a story that captivates and holds attention from the very first frame.</p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-on-surface m-0 text-lg">Visual Metaphors</h3>
-                  <p className="text-sm mt-1 mb-0">Communicate complex emotions and subtle themes through simple, striking imagery.</p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-on-surface m-0 text-lg">Soundscapes for Mood</h3>
-                  <p className="text-sm mt-1 mb-0">Use audio cues, pacing, and silence to completely immerse your audience in the moment.</p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-on-surface m-0 text-lg">Sharing Your Voice</h3>
-                  <p className="text-sm mt-1 mb-0">Find the courage to be authentic and vulnerable online, connecting deeply with your community.</p>
-                </div>
-              </div>
+              <p className="text-lg leading-relaxed text-on-surface-variant">
+                {workshop.learning_outcome}
+              </p>
             </div>
 
             <div className="mt-12 flex items-center gap-6">
@@ -154,9 +128,8 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
                 <User size={32} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-on-surface m-0">Elena Rodriguez</h2>
-                <p className="text-primary font-bold text-sm tracking-widest uppercase m-0 mt-1">Digital Narrator & Guide</p>
-                <p className="text-sm mt-2 mb-0">With over a decade of experience, Elena has helped thousands discover their unique voice. Her workshops are known for their intimate, encouraging atmosphere.</p>
+                <h2 className="text-xl font-bold text-on-surface m-0">{workshop.speaker_name}</h2>
+                <p className="text-primary font-bold text-sm tracking-widest uppercase m-0 mt-1">{workshop.speaker_title}</p>
               </div>
             </div>
           </motion.div>
