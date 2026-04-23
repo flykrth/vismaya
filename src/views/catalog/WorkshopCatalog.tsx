@@ -112,7 +112,7 @@ export function WorkshopCatalog() {
       >
         <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Register now</h1>
         <p className="font-body text-xl text-on-surface-variant leading-relaxed">
-          Don&apos;t miss the golden opportunity to make your summer meaningful. Spaces are limited!
+          To provide a focused and equitable experience for all campers, registration for Vismaya 2026 is governed by few scheduling constraints: students may select only one workshop per standard time slot (Slots A, B, C, D and F) which are mentioned in the workshop descriptions preventing any overlapping bookings. Furthermore, registration for an "Ongoing" workshop (Slot G) acts as a total schedule blocker, preventing the student from participating in any other sessions for the duration of the camp. Available workshops are automatically filtered based on the camper's registered age category to ensure developmental appropriateness and all selections are subject to real-time capacity limits.
         </p>
       </motion.div>
 
