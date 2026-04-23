@@ -25,7 +25,7 @@ export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error
 export async function addCamper(formData: FormData) {
   const fullName = formData.get('full_name') as string;
   const dob = formData.get('dob') as string; // Expected format: YYYY-MM-DD
-  const gender = (formData.get('gender') as 'male' | 'female' | 'other' | 'prefer_not_to_say') || 'prefer_not_to_say';
+  const gender = (formData.get('gender') as 'male' | 'female' | 'other') || 'male';
 
   const supabase = await createClient();
 
@@ -79,6 +79,7 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
     schedules: {
       id: string;
       workshop_id: string;
+      slot_label: 'A' | 'B' | 'C' | 'D';
       start_time: string;
       end_time: string;
       venue: string;
@@ -87,6 +88,7 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
     } | {
       id: string;
       workshop_id: string;
+      slot_label: 'A' | 'B' | 'C' | 'D';
       start_time: string;
       end_time: string;
       venue: string;
@@ -104,7 +106,7 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
       status,
       created_at,
       campers!inner(id, full_name, age_category),
-      schedules!inner(id, workshop_id, start_time, end_time, venue, max_capacity, current_enrollment)
+      schedules!inner(id, workshop_id, slot_label, start_time, end_time, venue, max_capacity, current_enrollment)
     `)
     .neq('status', 'cancelled')
     .order('created_at', { ascending: false });
@@ -170,6 +172,7 @@ export async function fetchMyRegistrations(): Promise<{ registrations: Registrat
         },
         schedule: {
           id: schedule.id,
+          slot_label: schedule.slot_label,
           start_time: schedule.start_time,
           end_time: schedule.end_time,
           venue: schedule.venue,

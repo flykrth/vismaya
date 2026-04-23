@@ -36,6 +36,7 @@ CREATE TABLE workshops (
 CREATE TABLE schedules (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workshop_id UUID NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+    slot_label TEXT NOT NULL CHECK (slot_label IN ('A', 'B', 'C', 'D')),
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
     venue TEXT NOT NULL,
@@ -104,7 +105,7 @@ BEGIN
         RAISE EXCEPTION 'Maximum workshop limit reached.';
     END IF;
 
-    -- C. No Time Conflicts Validation
+    -- C. No Slot Conflicts Validation
     IF EXISTS (
         SELECT 1 
         FROM registrations r
@@ -113,10 +114,9 @@ BEGIN
         WHERE r.camper_id = NEW.camper_id
         AND r.status != 'cancelled'
         AND r.id IS DISTINCT FROM NEW.id
-        AND new_s.start_time < existing_s.end_time 
-        AND new_s.end_time > existing_s.start_time
+        AND new_s.slot_label = existing_s.slot_label
     ) THEN
-        RAISE EXCEPTION 'Time slot conflict detected.';
+        RAISE EXCEPTION 'Slot conflict detected.';
     END IF;
 
     -- D. Capacity Limit (Waitlist if full)

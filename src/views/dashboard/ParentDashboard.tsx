@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camper, RegistrationWithDetails } from '@/models/supabaseClient';
 import { fetchMySecureCampers, addCamper, fetchMyRegistrations, cancelRegistration } from '@/controllers/dashboardController';
-import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent, BookOpen, Clock, MapPin, XCircle } from 'lucide-react';
+import { Plus, User, Calendar, Loader2, AlertCircle, CheckCircle2, Tent, BookOpen, MapPin, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -237,9 +237,6 @@ export function ParentDashboard() {
             </div>
 
             {registrations.map((registration) => {
-              const startTime = new Date(registration.schedule.start_time);
-              const endTime = new Date(registration.schedule.end_time);
-
               return (
                 <motion.div
                   key={registration.id}
@@ -257,11 +254,7 @@ export function ParentDashboard() {
                       <div className="flex flex-col gap-2 text-sm font-body text-on-surface-variant">
                         <div className="flex items-center gap-2">
                           <Calendar size={16} className="text-primary" />
-                          {startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock size={16} className="text-primary" />
-                          {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          Slot {registration.schedule.slot_label}
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin size={16} className="text-primary" />

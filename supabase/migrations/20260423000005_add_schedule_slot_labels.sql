@@ -1,6 +1,45 @@
--- Prevent duplicate active registrations for the same workshop by the same camper.
--- This hardens the rule at the database layer (not only in application code).
+-- Add public slot labels for schedules and migrate existing records.
+-- Slots are intentionally abstracted (A-D) so exact time details stay hidden.
 
+ALTER TABLE schedules
+ADD COLUMN IF NOT EXISTS slot_label TEXT;
+
+WITH ranked_slots AS (
+  SELECT
+    id,
+    ((DENSE_RANK() OVER (ORDER BY start_time::time, end_time::time) - 1) % 4) + 1 AS slot_rank
+  FROM schedules
+)
+UPDATE schedules s
+SET slot_label = CASE ranked_slots.slot_rank
+  WHEN 1 THEN 'A'
+  WHEN 2 THEN 'B'
+  WHEN 3 THEN 'C'
+  ELSE 'D'
+END
+FROM ranked_slots
+WHERE s.id = ranked_slots.id
+  AND s.slot_label IS NULL;
+
+ALTER TABLE schedules
+ALTER COLUMN slot_label SET NOT NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'schedules_slot_label_check'
+      AND conrelid = 'schedules'::regclass
+  ) THEN
+    ALTER TABLE schedules
+    ADD CONSTRAINT schedules_slot_label_check
+    CHECK (slot_label IN ('A', 'B', 'C', 'D'));
+  END IF;
+END;
+$$;
+
+-- Keep the registration validation function aligned with slot-based conflicts.
 CREATE OR REPLACE FUNCTION validate_and_process_registration() RETURNS TRIGGER AS $$
 BEGIN
     -- Only validate if status is NOT cancelled

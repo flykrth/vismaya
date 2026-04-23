@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Workshop, Schedule } from '@/models/supabaseClient';
 import { fetchWorkshopById, fetchSchedulesForWorkshop } from '@/controllers/catalogController';
-import { Calendar, Clock, MapPin, Users, ArrowLeft, BookOpen, User, NotepadText } from 'lucide-react';
+import { Calendar, MapPin, Users, ArrowLeft, BookOpen, User, NotepadText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { WorkshopDetailsSkeleton } from './WorkshopDetailsSkeleton';
@@ -160,8 +160,6 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
                 </div>
               ) : (
                 schedules.map((schedule, i) => {
-                  const startTime = new Date(schedule.start_time);
-                  const endTime = new Date(schedule.end_time);
                   const remainingSpots = Math.max(schedule.max_capacity - schedule.current_enrollment, 0);
                   const isFull = remainingSpots === 0;
                   
@@ -176,11 +174,7 @@ export function WorkshopDetails({ workshopId, selectedCamperId }: { workshopId: 
                       <div className="space-y-3 mb-6 relative z-10">
                         <div className="flex items-center gap-2 font-bold text-on-surface">
                           <Calendar size={18} className="text-primary" />
-                          {startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </div>
-                        <div className="flex items-center gap-2 font-body text-on-surface-variant">
-                          <Clock size={18} />
-                          {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          Slot {schedule.slot_label}
                         </div>
                         <div className="flex items-center gap-2 font-body text-on-surface-variant">
                           <MapPin size={18} />

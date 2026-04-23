@@ -10,8 +10,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type AgeCategory = 'sub-junior' | 'junior' | 'senior';
-export type CamperGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
+export type CamperGender = 'male' | 'female' | 'other';
 export type RegistrationStatus = 'registered' | 'waitlisted' | 'cancelled';
+export type ScheduleSlot = 'A' | 'B' | 'C' | 'D';
 
 export interface Workshop {
   id: string;
@@ -28,6 +29,7 @@ export interface Workshop {
 export interface Schedule {
   id: string;
   workshop_id: string;
+  slot_label: ScheduleSlot;
   start_time: string;
   end_time: string;
   venue: string;
@@ -56,6 +58,6 @@ export interface Registration {
 
 export interface RegistrationWithDetails extends Registration {
   camper: Pick<Camper, 'id' | 'full_name' | 'age_category'>;
-  schedule: Pick<Schedule, 'id' | 'start_time' | 'end_time' | 'venue' | 'max_capacity' | 'current_enrollment'>;
+  schedule: Pick<Schedule, 'id' | 'slot_label' | 'start_time' | 'end_time' | 'venue' | 'max_capacity' | 'current_enrollment'>;
   workshop: Pick<Workshop, 'id' | 'title'>;
 }
