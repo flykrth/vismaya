@@ -111,9 +111,16 @@ export function WorkshopCatalog() {
         className="text-center max-w-3xl mx-auto mb-16"
       >
         <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-on-surface mb-6">Register now</h1>
-        <p className="font-body text-xl text-on-surface-variant leading-relaxed">
-          To provide a focused and equitable experience for all campers, registration for Vismaya 2026 is governed by few scheduling constraints: students may select only one workshop per standard time slot (Slots A, B, C, D and F) which are mentioned in the workshop descriptions preventing any overlapping bookings. Furthermore, registration for an "Ongoing" workshop (Slot G) acts as a total schedule blocker, preventing the student from participating in any other sessions for the duration of the camp. Available workshops are automatically filtered based on the camper's registered age category to ensure developmental appropriateness and all selections are subject to real-time capacity limits.
-        </p>
+        <div className="space-y-4 font-body text-xl text-on-surface-variant leading-relaxed">
+          <p>To provide a focused and equitable experience for all campers, registration for Vismaya 2026 is governed by the following constraints:</p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Maximum number of registrations:</strong> Students can register for a maximum of five workshops.</li>
+            <li><strong>One workshop per slot:</strong> Students may select only one workshop per standard time slot (A, B, C, D and F) to prevent overlapping.</li>
+            <li><strong>Ongoing sessions (Slot G):</strong> Registering for an "Ongoing" workshop acts as a total schedule blocker for the entire duration of the camp.</li>
+            <li><strong>Age category filtering:</strong> Available workshops are automatically filtered based on the camper's registered age to ensure developmental appropriateness.</li>
+            <li><strong>Real-time capacity:</strong> All selections are subject to real-time seat availability and capacity limits.</li>
+          </ul>
+        </div>
       </motion.div>
 
       {loading || campersLoading ? (
