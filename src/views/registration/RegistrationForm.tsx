@@ -26,6 +26,7 @@ export function RegistrationForm() {
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const [password, setPassword] = useState('');
+  const [photoConsent, setPhotoConsent] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string; data?: unknown } | null>(null);
 
   useEffect(() => {
@@ -91,6 +92,11 @@ export function RegistrationForm() {
 
     if (!password.trim()) {
       toast.error('Please enter your account password to confirm registration.');
+      return;
+    }
+
+    if (!photoConsent) {
+      toast.error('Please confirm your media consent preference before continuing.');
       return;
     }
 
@@ -190,6 +196,24 @@ export function RegistrationForm() {
               <p className="text-xs text-on-surface-variant">Required to authorize registration for your camper.</p>
             </div>
 
+            <div className="space-y-2 rounded-2xl border border-surface-variant bg-surface-container-lowest/70 p-4">
+              <p className="font-headline font-bold text-on-surface text-base">Media consent</p>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                We may capture photographs during camp activities for public relations use
+                (website, brochures and official social channels). Please provide consent to continue registration.
+              </p>
+              <label className="inline-flex items-start gap-3 text-sm font-body text-on-surface pt-1">
+                <input
+                  type="checkbox"
+                  name="photo-consent"
+                  checked={photoConsent}
+                  onChange={(e) => setPhotoConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-primary"
+                />
+                <span>I consent to photography of my child</span>
+              </label>
+            </div>
+
             <AnimatePresence mode="wait">
               {result && (
                 <motion.div
@@ -213,7 +237,7 @@ export function RegistrationForm() {
             <motion.button
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              disabled={submitting || result?.success || mustSelectFromCatalog || !password.trim()}
+              disabled={submitting || result?.success || mustSelectFromCatalog || !password.trim() || !photoConsent}
               className={`w-full py-4 rounded-2xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2 rough-edge ${
                 result?.success 
                   ? 'bg-green-600 shadow-green-600/30' 
