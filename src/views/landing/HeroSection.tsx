@@ -62,7 +62,7 @@ export function HeroSection() {
           </h1>
 
           <p className="font-body text-lg md:text-xl text-on-surface-variant leading-relaxed max-w-lg">
-            Mata Amritanandamayi Math and Amrita LEAP proudly present Vismaya 2026, a premier 5-day residential summer camp designed to turn summer vacations into a journey of wonder and self-discovery. We invite young minds to join us for an unforgettable experience where learning meets fun!
+            Mata Amritanandamayi Math and Amrita University proudly present Vismaya 2026, a premier 5-day residential summer camp designed to turn summer vacations into a journey of wonder and self-discovery. We invite young minds to join us for an unforgettable experience where learning meets fun!
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
