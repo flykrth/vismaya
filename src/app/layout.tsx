@@ -5,6 +5,8 @@ import { Navigation } from '@/views/layout/Navigation';
 import { Footer } from '@/views/layout/Footer';
 import { createClient } from '@/models/supabaseServer';
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -43,6 +45,8 @@ export default async function RootLayout({
         </main>
         <Footer />
         <Toaster position="top-right" richColors />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
