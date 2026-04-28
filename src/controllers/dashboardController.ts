@@ -12,7 +12,7 @@ export async function fetchMySecureCampers(): Promise<{ campers: Camper[], error
   // the authenticated session token will prove who the user is to Postgres.
   const { data, error } = await supabase
     .from('campers')
-    .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
+    .select('id, parent_id, full_name, date_of_birth, registration_number, gender, age_category, created_at')
     .order('created_at', { ascending: false });
 
   if (error) {

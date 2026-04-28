@@ -43,6 +43,7 @@ export interface Camper {
   parent_id: string;
   full_name: string;
   date_of_birth: string;
+  registration_number: string;
   gender: CamperGender;
   age_category: AgeCategory;
   created_at: string;

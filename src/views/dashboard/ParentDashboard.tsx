@@ -176,6 +176,9 @@ export function ParentDashboard() {
                 </div>
                 
                 <h3 className="font-headline text-2xl font-bold text-on-surface mb-1">{camper.full_name}</h3>
+                <p className="font-body text-sm text-primary font-bold tracking-wide mb-2">
+                  Registration Number: {camper.registration_number}
+                </p>
                 
                 <div className="flex flex-col gap-3 mt-6">
                   <div className="flex items-center gap-3 text-on-surface-variant font-body">

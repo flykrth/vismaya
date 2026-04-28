@@ -10,7 +10,7 @@ export async function fetchMyCampers(): Promise<Camper[]> {
 
   const { data, error } = await supabase
     .from('campers')
-    .select('id, parent_id, full_name, date_of_birth, gender, age_category, created_at')
+    .select('id, parent_id, full_name, date_of_birth, registration_number, gender, age_category, created_at')
     .order('created_at', { ascending: false });
 
   if (error) {
