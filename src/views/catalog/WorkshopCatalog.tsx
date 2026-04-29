@@ -127,7 +127,7 @@ export function WorkshopCatalog() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-dashed border-primary/20 bg-surface-container-lowest/80 p-5 shadow-sm">
                 <p className="font-headline text-lg font-bold text-on-surface mb-2">Maximum number of registrations</p>
-                <p>Students can register for a maximum of six workshops.</p>
+                <p>Students can register for a maximum of five workshops.</p>
               </div>
 
               <div className="rounded-2xl border border-dashed border-primary/20 bg-surface-container-lowest/80 p-5 shadow-sm">
