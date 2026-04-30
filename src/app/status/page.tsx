@@ -3,7 +3,13 @@ import { createClient } from '@/models/supabaseServer';
 
 async function fetchStatusRows() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('status').select('*').order('created_at', { ascending: false });
+  // The `status` view does not expose a `created_at` column; don't order by it.
+  // Order by workshop_title then slot_label for a sensible default ordering.
+  const { data, error } = await supabase
+    .from('status')
+    .select('*')
+    .order('workshop_title', { ascending: true })
+    .order('slot_label', { ascending: true });
   if (error) {
     console.error('Error fetching status view:', error);
     return { rows: [], error: error.message };
@@ -18,7 +24,7 @@ export default async function StatusPage() {
   return (
     <section className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <h1 className="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-4">Vismaya Camp workshops - Registration Status</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-4">Workshops registration status</h1>
       </div>
 
       <div className="bg-white rounded-[2rem] p-6 shadow-lg border-2 border-surface-container-lowest overflow-auto">
