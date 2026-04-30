@@ -1,7 +1,7 @@
 import React from 'react';
 import { createClient } from '@/models/supabaseServer';
 
-type StatusRow = Record<string, any>;
+type StatusRow = Record<string, unknown>;
 
 async function fetchStatusRows() {
   const supabase = await createClient();
@@ -111,45 +111,53 @@ export default async function StatusPage() {
             </thead>
 
             <tbody className="divide-y divide-surface-container">
-              {rows.map((row: StatusRow, i: number) => (
-                <tr
-                  key={i}
-                  className={`transition-colors hover:bg-surface-container-lowest ${
-                    i % 2 === 0
-                      ? 'bg-white'
-                      : 'bg-surface-container-lowest/30'
-                  }`}
-                >
-                  {Object.keys(row).map((k) => {
-                    const v = row[k];
-                    let display = String(v ?? '—');
+              {rows.map((row: StatusRow, i: number) => {
+                const ce = row['current_enrollment'];
+                const me = row['max_capacity'];
+                const current =
+                  typeof ce === 'number'
+                    ? ce
+                    : typeof ce === 'string' && ce !== ''
+                    ? Number(ce)
+                    : NaN;
+                const max =
+                  typeof me === 'number'
+                    ? me
+                    : typeof me === 'string' && me !== ''
+                    ? Number(me)
+                    : NaN;
+                const isFull = !Number.isNaN(current) && !Number.isNaN(max) && current === max;
 
-                    // Format timestamps
-                    if (
-                      typeof v === 'string' &&
-                      /^\d{4}-\d{2}-\d{2}T/.test(v)
-                    ) {
-                      try {
-                        display = new Date(v).toLocaleString('en-IN', {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        });
-                      } catch {
-                        display = v;
+                const baseClass = i % 2 === 0 ? 'bg-white' : 'bg-surface-container-lowest/30';
+                const rowClass = `transition-colors hover:bg-surface-container-lowest ${isFull ? 'bg-red-50 text-red-800' : baseClass}`;
+
+                return (
+                  <tr key={i} className={rowClass}>
+                    {Object.keys(row).map((k) => {
+                      const v = row[k];
+                      let display = String(v ?? '—');
+
+                      // Format timestamps
+                      if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
+                        try {
+                          display = new Date(v).toLocaleString('en-IN', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          });
+                        } catch {
+                          display = v;
+                        }
                       }
-                    }
 
-                    return (
-                      <td
-                        key={k}
-                        className="px-4 py-4 text-sm text-on-surface"
-                      >
-                        <div className="font-medium">{display}</div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                      return (
+                        <td key={k} className="px-4 py-4 text-sm text-on-surface">
+                          <div className="font-medium">{display}</div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
